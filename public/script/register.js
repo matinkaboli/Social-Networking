@@ -2,6 +2,7 @@ const form = document.forms["register"];
 const username = form.username;
 const email = form.email;
 
+// With every letter that user types.
 username.addEventListener("input", () => {
   const configuration = {
     method: "POST",
@@ -15,7 +16,7 @@ username.addEventListener("input", () => {
   };
   checkUser("/checkuser", configuration);
 });
-
+// With every letter that user types.
 email.addEventListener("input", () => {
   const configuration = {
     method: "POST",
@@ -35,11 +36,14 @@ function checkUser(url, config) {
     .then(checkStatus)
     .then(res => res.json())
     .then(data => {
+      // If user hasent taken
       if (data.ok) {
+        // If username has space
         if (/\ /.test(username.value)) {
           username.style.backgroundColor = "red";
           form.addEventListener("click", prevent);
         } else {
+          // If everything was OK
           username.style.backgroundColor = "green";
           form.removeEventListener("click", prevent);
         }
@@ -54,11 +58,14 @@ function checkEmail(url, config) {
     .then(checkStatus)
     .then(res => res.json())
     .then(data => {
+      // If email hasent taken
       if (data.ok) {
+        // If username has space
         if (/\ /.test(email.value)) {
           email.style.backgroundColor = "red";
           form.addEventListener("click", prevent);
         } else {
+          // If everything was OK
           email.style.backgroundColor = "green";
           form.removeEventListener("click", prevent);
         }
@@ -77,9 +84,11 @@ function checkStatus(res) {
     throw error;
   }
 }
+// Dont let user register
 function prevent(e) {
   e.preventDefault();
 }
+// Before submit
 function lastCheck() {
   if (form.name.value.length > 25) {
     alert("Name very too long.");

@@ -2,10 +2,37 @@
   padding: 0;
   margin: 0;
 }
-input {
-  display: block;
-  margin: 25px;
+header {
+  width: 100%;
+  padding: 20px;
+  background-color: red;
+  display: flex;
+  justify-content: center;
 }
-fieldset {
-  margin: 30px;
+header input {
+  width: 100px;
+  height: 30px;
+}
+main {
+  margin: 20px;
+}
+main input {
+  display: block;
+  margin: 20px;
+  width: 200px;
+  height: 20px;
+  padding: 5px;
+  color: #666;
+  border: 1px solid black;
+  border-radius: 3px;
+  transition: width 1s ease;
+}
+main input:focus {
+  border: 1px solid blue;
+  width: 300px;
+  color: #000;
+}
+main input[type=submit] {
+  width: 300px;
+  height: 30px;
 }

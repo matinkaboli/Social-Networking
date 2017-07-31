@@ -6,6 +6,7 @@ function sendEm(nodemailer, to, text) {
       pass: "m@tinnim@125"
     }
   });
+  // Create a HTML page for email
   let mailOption = {
     from: "matinkaboli79@gmail.com",
     subject: "Verify Email",

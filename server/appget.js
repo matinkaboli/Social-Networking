@@ -1,4 +1,5 @@
 function gets(app, db) {
+  // Auth users with session
   const auth = (req, res, next) => {
     if (req.session && req.session.user) {
       return next();
@@ -6,6 +7,7 @@ function gets(app, db) {
       res.render("login.njk");
     }
   };
+  // Main page
   app.get("/", (req, res) => {
     if (req.session && req.session.user) {
       res.render("admin.njk");
@@ -13,19 +15,27 @@ function gets(app, db) {
       res.render("index.html");
     }
   });
+  // Login page, using session.
   app.get("/login", auth, (req, res) => {
     res.render("admin.njk");
   });
+  // Remove session and direct to Login page
   app.get("/logout", (req, res) => {
     req.session.destroy();
     res.render("login.njk");
   });
+  // Register page, same as main page
   app.get("/register", (req, res) => {
-    res.render("index.html");
+    // Check session
+    if (req.session && req.session.user) {
+      res.render("admin.njk");
+    } else {
+      res.render("index.html");
+    }
   });
+  // Setting page for complete account options
   app.get("/setting", auth, (req, res) => {
     // Check db width username in the session.
-    console.log(req.session);
     db.ckeckUserAndPassword(req.session.user, req.session.pass)
       .then(answer => {
         res.render("setting.njk", {

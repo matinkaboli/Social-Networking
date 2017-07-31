@@ -1,7 +1,10 @@
-function configs(app, express, session, bodyParser, nunjucks) {
+function configs(app, express, session, bodyParser, nunjucks, multer) {
+  // Add static files
   app.use(express.static("public"));
+
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
+  // Configure session
   app.use(session({
     secret: 'm@tinnim@125session',
     cookie: {
@@ -11,6 +14,11 @@ function configs(app, express, session, bodyParser, nunjucks) {
     resave: false,
     saveUninitialized: true
   }));
+  /* app.use(multer({
+   * dest: "public/profile"
+   * }));
+   */
+  // Configure template engine
   nunjucks.configure("views", {
     autospace: true,
     express: app

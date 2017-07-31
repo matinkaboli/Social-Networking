@@ -6,14 +6,18 @@
     <link rel="stylesheet" href="styles/master.css">
   </head>
   <body>
-    <form action="/" method="post" enctype="application/x-www-form-urlencoded" id="register" onsubmit="return lastCheck()">
-      <input type="text" name="name" placeholder="Name: " maxlength="25" required>
-      <input type="text" name="username" placeholder="Username: " maxlength="30" required>
-      <input type="email" name="email" placeholder="Email: " maxlength="100" required>
-      <input type="password" name="password" placeholder="Password: " maxlength="60" required>
-      <input type="password" name="repassword" placeholder="Re-password: " maxlength="60" required>
-      <input type="submit" value="Register" id="reg">
-    </form>
+    <header>
+    </header>
+    <main>
+      <form action="/" method="post" enctype="application/x-www-form-urlencoded" id="register" onsubmit="return lastCheck()">
+        <input type="text" name="name" placeholder="Name: " maxlength="25" required>
+        <input type="text" name="username" placeholder="Username: " maxlength="30" required>
+        <input type="email" name="email" placeholder="Email: " maxlength="100" required>
+        <input type="password" name="password" placeholder="Password: " maxlength="60" required>
+        <input type="password" name="repassword" placeholder="Re-password: " maxlength="60" required>
+        <input type="submit" value="Register" id="reg">
+      </form>
+    </main>
     <script src="script/register.js"></script>
   </body>
 </html>

@@ -1,9 +1,9 @@
 const shit = require("./db");
 
-shit.User.find({ username: "matinkaboli" }, (err, aff) => {
+/* shit.User.find({}, (err, aff) => {
   if (err) throw err;
-  console.log(aff[0])
-});
+  console.log(aff)
+}); */
 
 /* shit.User.find({ username: "matinkaboli" }).remove((err, aff) => {
   if (err) throw err;

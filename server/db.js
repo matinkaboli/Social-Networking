@@ -1,22 +1,15 @@
+// Main module
 const mongoose = require("mongoose");
-const crypto = require("crypto");
-
-function decrypt(text) {
-  let decipher = crypto.createDecipher("aes-256-ctr", "peshkelmachalaq");
-  let dec = decipher.update(text, "hex", "utf8");
-  dec += decipher.final("utf8");
-  return dec;
-}
-
+// Connect to mongodb
 mongoose.connect("mongodb://localhost/test", {
   useMongoClient: true
 });
 
 let db = mongoose.connection;
 let Schema = mongoose.Schema;
-
+// If error happened
 db.on("error", console.error.bind(console, "Connection failed."));
-
+// Create schema for user
 const userSchema = new Schema({
   name: String,
   username: { type: String, required: true, unique: true, minlength: 5, trim: true },
@@ -28,11 +21,12 @@ const userSchema = new Schema({
     about: { type: String, trim: true },
     address: { type: String, trim: true },
     link: { type: String, trim: true },
-    sex : { type: Boolean }
+    sex: { type: Boolean },
+    profileImage: { type: String }
   },
   admin: { type: Boolean }
 });
-
+// Before saving
 userSchema.pre("save", next => {
   let currentDate = new Date();
 
@@ -43,7 +37,7 @@ userSchema.pre("save", next => {
 });
 
 const User = mongoose.model("User", userSchema);
-
+// Check username and email in DB (using promise)
 function checkUserAndEmail(username, email) {
   return new Promise((resolve, reject) => {
     User.find({ $or: [{ username }, { email }]}, (err, result) => {
@@ -52,6 +46,7 @@ function checkUserAndEmail(username, email) {
     });
   });
 }
+// Check username and password in DB
 function ckeckUserAndPassword(username, password) {
   return new Promise((resolve, reject) => {
     User.find({ $and: [{ username }, { password }]}, (err, result) => {
@@ -60,7 +55,8 @@ function ckeckUserAndPassword(username, password) {
     });
   });
 }
-function checkEmail(url) {
+// Check token
+function checkToken(url) {
   return new Promise((resolve, reject) => {
     User.find({ emailurl: url }, (err, result) => {
       if (JSON.stringify(result) == "[]") reject("404 not found.");
@@ -73,9 +69,10 @@ function checkEmail(url) {
     });
   });
 }
+
 module.exports = {
   User,
   checkUserAndEmail,
   ckeckUserAndPassword,
-  checkEmail
+  checkToken
 };
