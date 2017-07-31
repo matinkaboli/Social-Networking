@@ -65,7 +65,7 @@ function checkEmail(url) {
     User.find({ emailurl: url }, (err, result) => {
       if (JSON.stringify(result) == "[]") reject("404 not found.");
       else {
-        User.update({ emailurl: url }, { emailurl: null }, (err, aff) => {
+        User.update({ emailurl: url }, { emailurl: "ok" }, (err, aff) => {
           if (err) throw err;
           resolve("ok");
         });

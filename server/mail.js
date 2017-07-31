@@ -9,7 +9,7 @@ function sendEm(nodemailer, to, text) {
   let mailOption = {
     from: "matinkaboli79@gmail.com",
     subject: "Verify Email",
-    html: text,
+    text,
     to
   };
   transport.sendMail(mailOption, (err, info) => {

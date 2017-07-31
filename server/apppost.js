@@ -30,7 +30,7 @@ function posts(app, session, checkUserAndEmail, ckeckUserAndPassword, User) {
         req.session.user = req.body.username;
         req.session.pass = enc.encrypt(crypto, req.body.password);
         // make it HTML
-        const textmsg = `<a href="localhost:8080/users/${uniqueLink}">Verify</a>`;
+        const textmsg = `${uniqueLink}`;
         mail(nodemailer, email, textmsg);
       })
       .catch(e => {
@@ -76,12 +76,14 @@ function posts(app, session, checkUserAndEmail, ckeckUserAndPassword, User) {
       });
   });
   app.post("/setting", (req, res) => {
-    const condition = { username: req.session.user };
+    const condition = {
+      username: req.session.user,
+      password: req.session.pass
+    };
     const sex = req.body.sex == "male" ? true : false;
     const update = {
       name: req.body.name,
       username: req.body.username,
-      password: enc.encrypt(crypto, req.body.password),
       email: req.body.email,
       description: {
         about: req.body.about,

@@ -1,6 +1,6 @@
 function token(app, db) {
   app.get("/users/:token", (req, res) => {
-    let emailcheck = req.params;
+    let emailcheck = req.params.token;
     console.log(emailcheck);
     db.checkEmail(emailcheck)
       .then(() => {
@@ -8,7 +8,7 @@ function token(app, db) {
       })
       .catch(e => {
         res.send("Dont have such token.");
-      })
+      });
   });
 }
 
