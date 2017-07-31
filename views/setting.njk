@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Setting</title>
+    <link rel="stylesheet" href="styles/master.css">
+  </head>
+  <body>
+    <p style="display: none" id="us">{{ data.username }}</p>
+    <p style="display: none" id="em">{{ data.email }}</p>
+    <form action="/setting" name="setting" method="post">
+      <input type="text" name="name" placeholder="Name: " value="{{ data.name }}">
+      <input type="text" name="username" placeholder="Username: " value="{{ data.username }}">
+      <input type="email" name="email" placeholder="Email: " value="{{ data.email }}">
+      <input type="radio" name="sex" value="male"> Male
+      <input type="radio" name="sex" value="female"> Female
+      <input type="text" name="about" placeholder="Description: " value="{{ data.description.about }}">
+      <input type="address" name="address" placeholder="Address: " value="{{ data.description.address }}">
+      <input type="link" name="link" placeholder="Link: " value="{{ data.description.link }}">
+      <input type="Submit" value="Submit changes">
+    </form>
+    <br><br><br><br>
+    <fieldset>
+      <legend>Change Password</legend>
+      <form action="/changepass" method="post">
+        <input type="password" name="oldpassword" placeholder="Old password: ">
+        <input type="password" name="newpassword" placeholder="New Password: ">
+        <input type="password" name="repassword" placeholder="Re-Password: ">
+        <input type="submit">
+      </form>
+    </fieldset>
+    <script src="script/setting.js"></script>
+  </body>
+</html>
