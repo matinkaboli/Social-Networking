@@ -2,7 +2,7 @@
 const nodemailer = require("nodemailer");
 const stringing = require("stringing");
 const crypto = require("crypto");
-const Jimp = require("jimp");
+const sharp = require("sharp");
 // import files
 const mail = require("./mail");
 const enc = require("./enc");
@@ -133,11 +133,10 @@ function posts(
     }
     // Check If user changed his avatar
     if (req.file) {
-      console.log(req.file);
-      update.description.avatar = req.file.filename;
+      update.description.avatar = req.file.filename + 'a';
       const fileName = req.file.filename;
       const folName = "../" + req.file.destination;
-      imageSize(Jimp, folName, fileName);
+      imageSize(sharp, folName, fileName);
     }
     User.find(condition, (err, result) => {
       if (err) throw err;
@@ -150,7 +149,7 @@ function posts(
     });
     // Set in DB
     User.update(condition, update, (err, numAffected) => {
-      console.log(numAffected);
+      console.log("Updated");
     });
     // Bring user to Admin page after updating setting
     res.redirect("/admin");
@@ -168,7 +167,7 @@ function posts(
     };
     // Set in DB
     User.update(condition, update, (err, numAffected) => {
-      console.log(numAffected);
+      console.log("Updated");
       // bring user to Admin page after updating setting
       res.render("admin.njk");
     });

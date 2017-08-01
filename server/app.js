@@ -4,7 +4,6 @@ const nunjucks = require("nunjucks");
 const bodyParser = require("body-parser");
 const session = require("express-session");
 const multer = require("multer");
-const Jimp = require("jimp");
 // Import files
 const db = require("./db");
 const configs = require("./configure");
