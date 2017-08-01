@@ -14,10 +14,6 @@ function configs(app, express, session, bodyParser, nunjucks, multer) {
     resave: false,
     saveUninitialized: true
   }));
-  /* app.use(multer({
-   * dest: "public/profile"
-   * }));
-   */
   // Configure template engine
   nunjucks.configure("views", {
     autospace: true,

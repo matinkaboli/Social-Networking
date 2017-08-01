@@ -11,7 +11,7 @@
       <p style="display: none" id="em">{{ data.email }}</p>
       <fieldset>
         <legend>Main setting</legend>
-        <form action="/setting" name="setting" method="post">
+        <form action="/setting" name="setting" method="post" enctype="multipart/form-data">
           <input type="text" name="name" placeholder="Name: " value="{{ data.name }}">
           <input type="text" name="username" placeholder="Username: " value="{{ data.username }}">
           <input type="email" name="email" placeholder="Email: " value="{{ data.email }}">
@@ -28,6 +28,7 @@
           <input type="text" name="about" placeholder="Description: " value="{{ data.description.about }}">
           <input type="address" name="address" placeholder="Address: " value="{{ data.description.address }}">
           <input type="link" name="link" placeholder="Link: " value="{{ data.description.link }}">
+          <input type="file" name="avatar" value="Profile photo">
           <input type="Submit" value="Submit changes">
         </form>
       </fieldset>

@@ -27,11 +27,7 @@ function gets(app, db) {
   // Register page, same as main page
   app.get("/register", (req, res) => {
     // Check session
-    if (req.session && req.session.user) {
-      res.render("admin.njk");
-    } else {
-      res.render("index.html");
-    }
+    res.redirect("/");
   });
   // Setting page for complete account options
   app.get("/setting", auth, (req, res) => {
@@ -45,6 +41,36 @@ function gets(app, db) {
       .catch(e => {
         res.send("Error...");
       });
+  });
+  app.get("/admin", auth, (req, res) => {
+    const condition = {
+      username: req.session.user,
+      password: req.session.pass
+    }
+    db.User.find(condition, (err, answer) => {
+      res.render("admin.njk", {
+        data: answer[0]
+      })
+    });
+  });
+  app.get("/user/:username", (req, res) => {
+    const username = req.params.username;
+    const originURL = req.originalUrl.split('/')[2];
+    const condition = {
+      username
+    };
+    db.User.find(condition, (err, result) => {
+      if (err) throw err;
+      if (JSON.stringify(result) == "[]") {
+        res.render("usernotfound.njk", {
+          url: originURL
+        });
+      } else {
+        res.render("user.njk", {
+          data: result[0]
+        });
+      }
+    });
   });
 }
 

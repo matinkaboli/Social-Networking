@@ -22,7 +22,7 @@ const userSchema = new Schema({
     address: { type: String, trim: true },
     link: { type: String, trim: true },
     sex: { type: Boolean },
-    profileImage: { type: String }
+    avatar: { type: String }
   },
   admin: { type: Boolean }
 });

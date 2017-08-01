@@ -5,8 +5,12 @@ const crypto = require("crypto");
 // import files
 const mail = require("./mail");
 const enc = require("./enc");
+const removeFile = require("./fs");
 
-function posts(app, session, checkUserAndEmail, ckeckUserAndPassword, User) {
+function posts(app, session, multer, checkUserAndEmail, ckeckUserAndPassword, User) {
+  const multerConfig = multer({
+    dest: "public/profile/"
+  });
   // After register =
   app.post("/", (req, res) => {
     // Make username and email lowercase
@@ -39,6 +43,7 @@ function posts(app, session, checkUserAndEmail, ckeckUserAndPassword, User) {
         // Save user to the session for 7 days.
         req.session.user = req.body.username;
         req.session.pass = enc.encrypt(crypto, req.body.password);
+        req.session.id = answer[0]._id;
         // Send email for complete the register
         mail(nodemailer, email, uniqueLink);
       })
@@ -83,20 +88,19 @@ function posts(app, session, checkUserAndEmail, ckeckUserAndPassword, User) {
     // Check username and encryped password
     ckeckUserAndPassword(user, enc.encrypt(crypto, req.body.password))
       .then(answer => {
-        res.render("admin.njk", {
-          // Send the first(only) document on the DB
-          data: answer[0]
-        });
         // Save user to the sessino for 7 days
         req.session.user = req.body.username;
         req.session.pass = enc.encrypt(crypto, req.body.password);
+        req.session.id = answer[0]._id;
+        res.redirect("/admin");
       })
       .catch(e => {
         res.render("login.njk");
       });
   });
-  app.post("/setting", (req, res) => {
+  app.post("/setting", multerConfig.single("avatar"), (req, res) => {
     // Find it in DB
+    const id = req.session.id;
     const condition = {
       username: req.session.user,
       password: req.session.pass
@@ -118,12 +122,25 @@ function posts(app, session, checkUserAndEmail, ckeckUserAndPassword, User) {
     } else if (req.body.sex === "female") {
       update.description.sex = false;
     }
+    // Check If user changed his avatar
+    if (req.file) {
+      update.description.avatar = req.file.filename;
+    }
+    User.find(condition, (err, result) => {
+      if (err) throw err;
+      if (result[0].description.avatar) {
+        let file = "/home/matin/Documents/projects/facebook/public/profile/" +
+        result[0].description.avatar;
+        console.log(file);
+        removeFile(file);
+      }
+    });
     // Set in DB
     User.update(condition, update, (err, numAffected) => {
       console.log(numAffected);
     });
     // Bring user to Admin page after updating setting
-    res.render("admin.njk");
+    res.redirect("/admin");
   });
   // Change password in Setting page
   app.post("/changepass", (req, res) => {
