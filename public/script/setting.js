@@ -10,7 +10,7 @@ username.addEventListener("input", () => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Accept": "application/json"
+      Accept: "application/json"
     },
     body: JSON.stringify({
       username: username.value.toLowerCase()
@@ -24,7 +24,7 @@ email.addEventListener("input", () => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Accept": "application/json"
+      Accept: "application/json"
     },
     body: JSON.stringify({
       email: email.value.toLowerCase()
@@ -34,52 +34,46 @@ email.addEventListener("input", () => {
 });
 
 function checkUser(url, config) {
-  fetch(url, config)
-    .then(checkStatus)
-    .then(res => res.json())
-    .then(data => {
-      if (data.ok) {
-        if (/\ /.test(username.value)) {
-          username.style.backgroundColor = "red";
-          form.addEventListener("click", prevent);
-        } else {
-          username.style.backgroundColor = "green";
-          form.removeEventListener("click", prevent);
-        }
+  fetch(url, config).then(checkStatus).then(res => res.json()).then(data => {
+    if (data.ok) {
+      if (/\ /.test(username.value)) {
+        username.style.backgroundColor = "red";
+        form.addEventListener("click", prevent);
       } else {
-        if (username.value === us.innerHTML) {
-          username.style.backgroundColor = "green";
-          form.removeEventListener("click", prevent);
-        } else {
-          username.style.backgroundColor = "red";
-          form.addEventListener("click", prevent);
-        }
+        username.style.backgroundColor = "green";
+        form.removeEventListener("click", prevent);
       }
-    });
+    } else {
+      if (username.value === us.innerHTML) {
+        username.style.backgroundColor = "green";
+        form.removeEventListener("click", prevent);
+      } else {
+        username.style.backgroundColor = "red";
+        form.addEventListener("click", prevent);
+      }
+    }
+  });
 }
 function checkEmail(url, config) {
-  fetch(url, config)
-    .then(checkStatus)
-    .then(res => res.json())
-    .then(data => {
-      if (data.ok) {
-        if (/\ /.test(email.value)) {
-          email.style.backgroundColor = "red";
-          form.addEventListener("click", prevent);
-        } else {
-          email.style.backgroundColor = "green";
-          form.removeEventListener("click", prevent);
-        }
+  fetch(url, config).then(checkStatus).then(res => res.json()).then(data => {
+    if (data.ok) {
+      if (/\ /.test(email.value)) {
+        email.style.backgroundColor = "red";
+        form.addEventListener("click", prevent);
       } else {
-        if (email.value === em.innerHTML) {
-          email.style.backgroundColor = "green";
-          form.removeEventListener("click", prevent);
-        } else {
-          email.style.backgroundColor = "red";
-          form.addEventListener("click", prevent);
-        }
+        email.style.backgroundColor = "green";
+        form.removeEventListener("click", prevent);
       }
-    });
+    } else {
+      if (email.value === em.innerHTML) {
+        email.style.backgroundColor = "green";
+        form.removeEventListener("click", prevent);
+      } else {
+        email.style.backgroundColor = "red";
+        form.addEventListener("click", prevent);
+      }
+    }
+  });
 }
 function checkStatus(res) {
   if (res.status >= 200 && res.status < 300) {

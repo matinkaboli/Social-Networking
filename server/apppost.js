@@ -2,12 +2,21 @@
 const nodemailer = require("nodemailer");
 const stringing = require("stringing");
 const crypto = require("crypto");
+const Jimp = require("jimp");
 // import files
 const mail = require("./mail");
 const enc = require("./enc");
 const removeFile = require("./fs");
 
-function posts(app, session, multer, checkUserAndEmail, ckeckUserAndPassword, User) {
+function posts(
+  app,
+  session,
+  multer,
+  imageSize,
+  checkUserAndEmail,
+  ckeckUserAndPassword,
+  User
+) {
   const multerConfig = multer({
     dest: "public/profile/"
   });
@@ -113,7 +122,7 @@ function posts(app, session, multer, checkUserAndEmail, ckeckUserAndPassword, Us
       description: {
         about: req.body.about,
         address: req.body.address,
-        link: req.body.link,
+        link: req.body.link
       }
     };
     // Check radio input
@@ -124,14 +133,18 @@ function posts(app, session, multer, checkUserAndEmail, ckeckUserAndPassword, Us
     }
     // Check If user changed his avatar
     if (req.file) {
+      console.log(req.file);
       update.description.avatar = req.file.filename;
+      const fileName = req.file.filename;
+      const folName = "../" + req.file.destination;
+      imageSize(Jimp, folName, fileName);
     }
     User.find(condition, (err, result) => {
       if (err) throw err;
       if (result[0].description.avatar) {
-        let file = "/home/matin/Documents/projects/facebook/public/profile/" +
-        result[0].description.avatar;
-        console.log(file);
+        let file =
+          "/home/matin/Documents/projects/facebook/public/profile/" +
+          result[0].description.avatar;
         removeFile(file);
       }
     });

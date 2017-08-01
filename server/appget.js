@@ -32,7 +32,8 @@ function gets(app, db) {
   // Setting page for complete account options
   app.get("/setting", auth, (req, res) => {
     // Check db width username in the session.
-    db.ckeckUserAndPassword(req.session.user, req.session.pass)
+    db
+      .ckeckUserAndPassword(req.session.user, req.session.pass)
       .then(answer => {
         res.render("setting.njk", {
           data: answer[0]
@@ -46,16 +47,16 @@ function gets(app, db) {
     const condition = {
       username: req.session.user,
       password: req.session.pass
-    }
+    };
     db.User.find(condition, (err, answer) => {
       res.render("admin.njk", {
         data: answer[0]
-      })
+      });
     });
   });
   app.get("/user/:username", (req, res) => {
     const username = req.params.username;
-    const originURL = req.originalUrl.split('/')[2];
+    const originURL = req.originalUrl.split("/")[2];
     const condition = {
       username
     };

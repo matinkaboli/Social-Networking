@@ -12,7 +12,13 @@ db.on("error", console.error.bind(console, "Connection failed."));
 // Create schema for user
 const userSchema = new Schema({
   name: String,
-  username: { type: String, required: true, unique: true, minlength: 5, trim: true },
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    minlength: 5,
+    trim: true
+  },
   password: { type: String, required: true },
   email: { type: String, required: true, trim: true },
   emailurl: { type: String },
@@ -40,7 +46,7 @@ const User = mongoose.model("User", userSchema);
 // Check username and email in DB (using promise)
 function checkUserAndEmail(username, email) {
   return new Promise((resolve, reject) => {
-    User.find({ $or: [{ username }, { email }]}, (err, result) => {
+    User.find({ $or: [{ username }, { email }] }, (err, result) => {
       if (JSON.stringify(result) == "[]") resolve("Username is free.");
       else reject("Username or email exists.");
     });
@@ -49,7 +55,7 @@ function checkUserAndEmail(username, email) {
 // Check username and password in DB
 function ckeckUserAndPassword(username, password) {
   return new Promise((resolve, reject) => {
-    User.find({ $and: [{ username }, { password }]}, (err, result) => {
+    User.find({ $and: [{ username }, { password }] }, (err, result) => {
       if (JSON.stringify(result) == "[]") reject("Damn it...");
       else resolve(result);
     });

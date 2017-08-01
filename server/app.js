@@ -4,12 +4,14 @@ const nunjucks = require("nunjucks");
 const bodyParser = require("body-parser");
 const session = require("express-session");
 const multer = require("multer");
+const Jimp = require("jimp");
 // Import files
 const db = require("./db");
 const configs = require("./configure");
 const posts = require("./apppost");
 const gets = require("./appget");
 const token = require("./token");
+const imageSize = require("./imagesize");
 // Start
 const app = express();
 // Express configuration
@@ -17,7 +19,15 @@ configs(app, express, session, bodyParser, nunjucks);
 // GET Routing
 gets(app, db);
 // POST routing
-posts(app, session, multer, db.checkUserAndEmail, db.ckeckUserAndPassword, db.User);
+posts(
+  app,
+  session,
+  multer,
+  imageSize,
+  db.checkUserAndEmail,
+  db.ckeckUserAndPassword,
+  db.User
+);
 // Check token for account validation
 token(app, db);
 // 404 status

@@ -10,7 +10,6 @@ const shit = require("./db");
   console.log(aff)
 }); */
 
-
 /* function encrypt(text) {
   let cipher = crypto.createCipher(algorithm, password);
   let crypted = cipher.update(text, "utf8", "hex");

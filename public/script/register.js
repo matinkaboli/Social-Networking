@@ -8,7 +8,7 @@ username.addEventListener("input", () => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Accept": "application/json"
+      Accept: "application/json"
     },
     body: JSON.stringify({
       username: username.value.toLowerCase()
@@ -22,7 +22,7 @@ email.addEventListener("input", () => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Accept": "application/json"
+      Accept: "application/json"
     },
     body: JSON.stringify({
       email: email.value.toLowerCase()
@@ -32,48 +32,42 @@ email.addEventListener("input", () => {
 });
 
 function checkUser(url, config) {
-  fetch(url, config)
-    .then(checkStatus)
-    .then(res => res.json())
-    .then(data => {
-      // If user hasent taken
-      if (data.ok) {
-        // If username has space
-        if (/\ /.test(username.value)) {
-          username.style.backgroundColor = "red";
-          form.addEventListener("click", prevent);
-        } else {
-          // If everything was OK
-          username.style.backgroundColor = "green";
-          form.removeEventListener("click", prevent);
-        }
-      } else {
+  fetch(url, config).then(checkStatus).then(res => res.json()).then(data => {
+    // If user hasent taken
+    if (data.ok) {
+      // If username has space
+      if (/\ /.test(username.value)) {
         username.style.backgroundColor = "red";
         form.addEventListener("click", prevent);
+      } else {
+        // If everything was OK
+        username.style.backgroundColor = "green";
+        form.removeEventListener("click", prevent);
       }
-    });
+    } else {
+      username.style.backgroundColor = "red";
+      form.addEventListener("click", prevent);
+    }
+  });
 }
 function checkEmail(url, config) {
-  fetch(url, config)
-    .then(checkStatus)
-    .then(res => res.json())
-    .then(data => {
-      // If email hasent taken
-      if (data.ok) {
-        // If username has space
-        if (/\ /.test(email.value)) {
-          email.style.backgroundColor = "red";
-          form.addEventListener("click", prevent);
-        } else {
-          // If everything was OK
-          email.style.backgroundColor = "green";
-          form.removeEventListener("click", prevent);
-        }
-      } else {
+  fetch(url, config).then(checkStatus).then(res => res.json()).then(data => {
+    // If email hasent taken
+    if (data.ok) {
+      // If username has space
+      if (/\ /.test(email.value)) {
         email.style.backgroundColor = "red";
         form.addEventListener("click", prevent);
+      } else {
+        // If everything was OK
+        email.style.backgroundColor = "green";
+        form.removeEventListener("click", prevent);
       }
-    });
+    } else {
+      email.style.backgroundColor = "red";
+      form.addEventListener("click", prevent);
+    }
+  });
 }
 function checkStatus(res) {
   if (res.status >= 200 && res.status < 300) {
