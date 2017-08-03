@@ -10,7 +10,7 @@ function gets(app, db) {
   // Main page
   app.get("/", (req, res) => {
     if (req.session && req.session.user) {
-      res.render("admin.njk");
+      res.redirect("/admin");
     } else {
       res.render("index.html");
     }
@@ -18,11 +18,6 @@ function gets(app, db) {
   // Login page, using session.
   app.get("/login", auth, (req, res) => {
     res.render("admin.njk");
-  });
-  // Remove session and direct to Login page
-  app.get("/logout", (req, res) => {
-    req.session.destroy();
-    res.render("login.njk");
   });
   // Register page, same as main page
   app.get("/register", (req, res) => {
@@ -67,9 +62,24 @@ function gets(app, db) {
           url: originURL
         });
       } else {
-        res.render("user.njk", {
-          data: result[0]
-        });
+        if (req.session && req.session.user) {
+          let con = {
+            username: req.session.user
+          };
+          db.User.find(con, (err, tank) => {
+            let isFollowed = tank[0].follower.includes(originURL);
+            res.render("userin.njk", {
+              data: result[0],
+              self: req.session.user,
+              url: originURL,
+              isFollowed
+            });
+          });
+        } else {
+          res.render("userout.njk", {
+            data: result[0]
+          });
+        }
       }
     });
   });

@@ -1,0 +1,11 @@
+{% if self == url %}
+<p>Yourself</p>
+{% elif isFollowed %}
+<input type="hidden" id="userToFollow" value="{{ url }}">
+<input type="hidden" id="watcher" value="{{ self }}">
+<input type="submit" id="fol" value="UNFOLLOW">
+{% else %}
+<input type="hidden" id="userToFollow" value="{{ url }}">
+<input type="hidden" id="watcher" value="{{ self }}">
+<input type="submit" id="fol" value="FOLLOW">
+{% endif %}

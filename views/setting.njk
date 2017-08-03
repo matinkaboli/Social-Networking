@@ -16,15 +16,40 @@
           <input type="text" name="username" placeholder="Username: " value="{{ data.username }}">
           <input type="email" name="email" placeholder="Email: " value="{{ data.email }}">
           {% if data.description.sex == true %}
-          <input type="radio" name="sex" value="male" checked> Male
-          <input type="radio" name="sex" value="female"> Female
+          <select name="sex">
+            <option value="male" selected>Male</option>
+            <option value="female">Female</option>
+          </select>
           {% elif data.description.sex == false %}
-          <input type="radio" name="sex" value="male"> Male
-          <input type="radio" name="sex" value="female" checked> Female
+          <select name="sex">
+            <option value="male">Male</option>
+            <option value="female" selected>Female</option>
+          </select>
           {% else %}
-          <input type="radio" name="sex" value="male"> Male
-          <input type="radio" name="sex" value="female"> Female
+          <select name="sex">
+            <option selected><option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
           {% endif %}
+          {% if data.description.case == true %}
+          <select name="case">
+            <option value="married" selected>Married</option>
+            <option value="single">Single</option>
+          </select>
+          {% elif data.description.case == false %}
+          <select name="case">
+            <option value="married">Married</option>
+            <option value="single" selected>Single</option>
+          </select>
+          {% else %}
+          <select name="case">
+            <option selected><option>
+            <option value="married">Married</option>
+            <option value="single">Single</option>
+          </select>
+          {% endif %}
+
           <input type="text" name="about" placeholder="Description: " value="{{ data.description.about }}">
           <input type="address" name="address" placeholder="Address: " value="{{ data.description.address }}">
           <input type="link" name="link" placeholder="Link: " value="{{ data.description.link }}">

@@ -28,8 +28,11 @@ const userSchema = new Schema({
     address: { type: String, trim: true },
     link: { type: String, trim: true },
     sex: { type: Boolean },
-    avatar: { type: String }
+    avatar: { type: String },
+    case: { type: Boolean }
   },
+  follower: [String],
+  following: [String],
   admin: { type: Boolean }
 });
 // Before saving

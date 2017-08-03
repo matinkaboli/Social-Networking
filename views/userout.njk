@@ -5,14 +5,23 @@
     <title>{{ data.name }}</title>
   </head>
   <body>
+    {% if  data.description.avatar %}
     <img src="{{ '../profile/' + data.description.avatar }}">
+    {% else %}
+    <img src="../default/man.jpg">
+    {% endif %}
     <h1>Name: {{ data.name }}</h1>
     <p>Username: {{ data.username }}</p>
     <p>Email: {{ data.email }}</p>
-    {% if data.description.sex %}
+    {% if data.description.sex == true %}
       <p>Male</p>
-    {% else %}
+    {% elif data.description.sex == false %}
       <p>Female</p>
+    {% endif %}
+    {% if data.description.sex == true %}
+      <p>Married</p>
+    {% elif data.description.sex == false %}
+      <p>Single</p>
     {% endif %}
   </body>
 </html>

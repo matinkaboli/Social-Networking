@@ -5,7 +5,15 @@
     <title>Welcome</title>
   </head>
   <body>
+    {% if  data.description.avatar %}
     <img src="{{ 'profile/' + data.description.avatar }}">
+    {% else %}
+    <img src="{{ 'default/man.jpg' }}">
+    {% endif %}
     <a href="/setting">Setting</a>
+    <br>
+    <form action="/logout" method="post">
+      <input type="submit" value="LOGOUT">
+    </form>
   </body>
 </html>

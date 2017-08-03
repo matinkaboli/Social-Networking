@@ -14,7 +14,7 @@ const imageSize = require("./imagesize");
 // Start
 const app = express();
 // Express configuration
-configs(app, express, session, bodyParser, nunjucks);
+configs(app, express, bodyParser, nunjucks, session);
 // GET Routing
 gets(app, db);
 // POST routing
@@ -36,6 +36,6 @@ app.use((req, res, next) => {
   });
 });
 // Listen to 8080 port
-app.listen(8080, () => {
-  console.log("The server is running on port 8080");
+app.listen(81, () => {
+  console.log("The server is running on port 81");
 });

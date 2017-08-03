@@ -17,7 +17,7 @@ username.addEventListener("input", () => {
   checkUser("/checkuser", configuration);
 });
 // With every letter that user types.
-email.addEventListener("input", () => {
+email.addEventListener("blur", () => {
   const configuration = {
     method: "POST",
     headers: {
