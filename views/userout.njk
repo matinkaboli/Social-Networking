@@ -12,7 +12,9 @@
     {% endif %}
     <h1>Name: {{ data.name }}</h1>
     <p>Username: {{ data.username }}</p>
+    {% if data.showEmail == true %}
     <p>Email: {{ data.email }}</p>
+    {% endif %}
     {% if data.description.sex == true %}
       <p>Male</p>
     {% elif data.description.sex == false %}
@@ -23,5 +25,13 @@
     {% elif data.description.sex == false %}
       <p>Single</p>
     {% endif %}
+    <p>Followers: {{ data.follower | length }}</p>
+    {% if data.description.about %}
+      <p>{{ data.description.about }}</p>
+    {% endif %}
+    {% if data.description.address %}
+      <p>{{ data.description.address }}</p>
+    {% endif %}
+
   </body>
 </html>

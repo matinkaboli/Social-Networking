@@ -7,14 +7,20 @@
   </head>
   <body>
     <header>
+      <form action="/login" method="post">
+        <input type="text" name="username" placeholder="Username: ">
+        <input type="password" name="password" placeholder="Password: ">
+        <input type="submit" value="Login">
+      </form>
     </header>
     <main>
-      <form action="/" method="post" enctype="application/x-www-form-urlencoded" id="register" onsubmit="return lastCheck()">
+      <form action="/" method="post"id="register" onsubmit="return lastCheck()">
         <input type="text" name="name" placeholder="Name: " maxlength="25" required>
         <input type="text" name="username" placeholder="Username: " maxlength="30" required>
         <input type="email" name="email" placeholder="Email: " maxlength="100" required>
         <input type="password" name="password" placeholder="Password: " maxlength="60" required>
         <input type="password" name="repassword" placeholder="Re-password: " maxlength="60" required>
+        Show Email<input type="checkbox" name="showemail" value="true">
         <input type="submit" value="Register" id="reg">
       </form>
     </main>

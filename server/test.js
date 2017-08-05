@@ -6,7 +6,7 @@ const Sharp = require("sharp");
   console.log(aff)
 }); */
 
-/* shit.User.find({  }).remove((err, aff) => {
+shit.User.find({  }).remove((err, aff) => {
   if (err) throw err;
   console.log(aff)
-}); */
+});

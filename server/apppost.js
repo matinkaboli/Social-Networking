@@ -29,6 +29,13 @@ function posts(
     let uniqueLink = stringing.unique(40);
     // Set fields to User object
     let defaultPhoto = "../public/default/man.jpg";
+
+    let validShow;
+    if (req.body.showemail) {
+      validShow = true;
+    } else {
+      validShow = false;
+    }
     const user = new User({
       name: req.body.name,
       // Encrypt Password
@@ -36,13 +43,14 @@ function posts(
       // Set random link to emailurl
       emailurl: uniqueLink,
       username,
-      email
+      email,
+      showEmail: validShow
     });
     // Check if username or email taken by someone else
     checkUserAndEmail(req.body.username, req.body.email)
       .then(answer => {
         // Save user to the session for 7 days.
-        req.session.user = req.body.username;
+        req.session.user = req.body.username.toLowerCase();
         req.session.pass = enc.encrypt(crypto, req.body.password);
         req.session.id = answer[0]._id;
         // Save object
@@ -95,7 +103,7 @@ function posts(
     ckeckUserAndPassword(user, enc.encrypt(crypto, req.body.password))
       .then(answer => {
         // Save user to the sessino for 7 days
-        req.session.user = req.body.username;
+        req.session.user = req.body.username.toLowerCase();
         req.session.pass = enc.encrypt(crypto, req.body.password);
         req.session.id = answer[0]._id;
         res.redirect("/admin");
@@ -107,14 +115,14 @@ function posts(
   app.post("/setting", multerConfig.single("avatar"), (req, res) => {
     // Find it in DB
     const condition = {
-      username: req.session.user,
+      username: req.session.user.toLowerCase(),
       password: req.session.pass
     };
     // Change it
     const update = {
       name: req.body.name,
-      username: req.body.username,
-      email: req.body.email,
+      username: req.body.username.toLowerCase(),
+      email: req.body.email.toLowerCase(),
       description: {
         about: req.body.about,
         address: req.body.address,
@@ -133,10 +141,14 @@ function posts(
     } else if (req.body.case === "single") {
       update.description.case = false;
     }
+    if (req.body.showemail) {
+      update.showEmail = true;
+    } else {
+      update.showEmail = false;
+    }
     // Check If user changed his avatar
     User.find(condition, (err, result) => {
       if (err) throw err;
-
       if (!req.file) {
         if (result[0].description.avatar) {
           update.description.avatar = result[0].description.avatar;
@@ -178,18 +190,24 @@ function posts(
     res.redirect("/");
   });
   app.post("/follow", (req, res) => {
-    User.find({ username: req.body.watcher }, (err, tank) => {
+    const watcherObj = {
+      username: req.body.watcher.toLowerCase()
+    };
+    const UTFObj = {
+      username: req.body.userToFollow.toLowerCase()
+    };
+    User.find(watcherObj, (err, tank) => {
       if (err) throw err;
-      tank[0].following.push(req.body.userToFollow);
+      tank[0].following.push(req.body.userToFollow.toLowerCase());
       tank[0].save((err, updatedTank) => {
         if (err) throw err;
         req.body.fo = "followed";
         res.json(req.body);
       });
     });
-    User.find({ username: req.body.userToFollow }, (err, tank) => {
+    User.find(UTFObj, (err, tank) => {
       if (err) throw err;
-      tank[0].follower.push(req.body.watcher);
+      tank[0].follower.push(req.body.watcher.toLowerCase());
       tank[0].save((err, updatedTank) => {
         if (err) throw err;
       });
@@ -197,12 +215,12 @@ function posts(
   });
   app.post("/unfollow", (req, res) => {
     const condition = {
-      username: req.body.watcher
+      username: req.body.watcher.toLowerCase()
     };
     User.find(condition, (err, tank) => {
       if (err) throw err;
       const f = tank[0].following;
-      const index = f.indexOf(req.body.userToFollow);
+      const index = f.indexOf(req.body.userToFollow.toLowerCase());
       f.splice(index, 1);
       tank[0].save((err, updatedTank) => {
         if (err) throw err;
@@ -210,13 +228,31 @@ function posts(
         res.json(req.body);
       });
     });
-    User.find({ username: req.body.userToFollow }, (err, tank) => {
-      if (err) throw err;
-      const f = tank[0].follower;
-      const index = f.indexOf(req.body.watcher);
-      f.splice(index, 1);
-      tank[0].save((err, updatedTank) => {
+    User.find(
+      { username: req.body.userToFollow.toLowerCase() },
+      (err, tank) => {
         if (err) throw err;
+        const f = tank[0].follower;
+        const index = f.indexOf(req.body.watcher.toLowerCase());
+        f.splice(index, 1);
+        tank[0].save((err, updatedTank) => {
+          if (err) throw err;
+        });
+      }
+    );
+  });
+  app.post("/delete", (req, res) => {
+    const condition = { username: req.session.user.toLowerCase() };
+    User.find(condition, (err, result) => {
+      if (result[0].description.avatar) {
+        const address =
+          "/home/matin/Documents/projects/facebook/public/profile/";
+        removeFile(address + result[0].description.avatar);
+      }
+      User.find(condition).remove((err, aff) => {
+        if (err) throw err;
+        req.session.destroy();
+        res.redirect("/");
       });
     });
   });

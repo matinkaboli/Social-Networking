@@ -23,6 +23,7 @@ const userSchema = new Schema({
   email: { type: String, required: true, trim: true },
   emailurl: { type: String },
   created: Date,
+  showEmail: { type: Boolean },
   description: {
     about: { type: String, trim: true },
     address: { type: String, trim: true },
@@ -78,10 +79,20 @@ function checkToken(url) {
     });
   });
 }
+function checkUsername(username) {
+  return new Promise((resolve, reject) => {
+    User.find({ username }, (err, result) => {
+      if (err) throw err;
+      if (JSON.stringify(result) == "[]") reject(username);
+      else resolve(result);
+    })
+  })
+}
 
 module.exports = {
   User,
   checkUserAndEmail,
   ckeckUserAndPassword,
-  checkToken
+  checkToken,
+  checkUsername
 };

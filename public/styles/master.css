@@ -4,35 +4,31 @@
 }
 header {
   width: 100%;
-  padding: 20px 0;
-  background-color: red;
+  height: 60px;
+  background-color: #19215e;
+  margin-bottom: 20px;
+  padding: 15px;
   display: flex;
-  justify-content: center;
+  box-sizing: border-box;
 }
-header input {
-  width: 100px;
+header input:not([type="submit"]) {
+  margin: 0 10px;
+  width: 85px;
   height: 30px;
-}
-main {
-  margin: 20px;
-}
-main input {
-  display: block;
-  margin: 20px;
-  width: 200px;
-  height: 20px;
-  padding: 5px;
-  color: #666;
-  border: 1px solid black;
+  border: 2px solid #d6e6f2;
   border-radius: 3px;
   transition: width 1s ease;
 }
-main input:focus {
-  border: 1px solid blue;
-  width: 300px;
-  color: #000;
+header input:not([type="submit"]):focus {
+  width: 200px;
+  border: 2px solid #5ea3a6;
 }
-main input[type=submit] {
-  width: 300px;
-  height: 30px;
+header input[type="submit"] {
+  height: 35px;
+  width: 100px;
+  background-color: #e20049;
+  border: 1px solid #f79f24;
+}
+header input[type="submit"]:hover {
+  background-color: #e63870;
 }

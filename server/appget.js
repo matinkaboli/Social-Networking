@@ -28,13 +28,14 @@ function gets(app, db) {
   app.get("/setting", auth, (req, res) => {
     // Check db width username in the session.
     db
-      .ckeckUserAndPassword(req.session.user, req.session.pass)
+      .checkUsername(req.session.user.toLowerCase(), req.session.pass)
       .then(answer => {
         res.render("setting.njk", {
           data: answer[0]
         });
       })
       .catch(e => {
+        console.log(e);
         res.send("Error...");
       });
   });
@@ -51,29 +52,25 @@ function gets(app, db) {
   });
   app.get("/user/:username", (req, res) => {
     const username = req.params.username;
-    const originURL = req.originalUrl.split("/")[2];
-    const condition = {
-      username
-    };
+    const condition = { username };
     db.User.find(condition, (err, result) => {
       if (err) throw err;
       if (JSON.stringify(result) == "[]") {
         res.render("usernotfound.njk", {
-          url: originURL
+          url: username
         });
       } else {
         if (req.session && req.session.user) {
+          const userSes = req.session.user.toLowerCase();
           let con = {
-            username: req.session.user
+            username: req.session.user.toLowerCase()
           };
-          db.User.find(con, (err, tank) => {
-            let isFollowed = tank[0].follower.includes(originURL);
-            res.render("userin.njk", {
-              data: result[0],
-              self: req.session.user,
-              url: originURL,
-              isFollowed
-            });
+          let isFollowed = result[0].follower.includes(userSes);
+          res.render("userin.njk", {
+            data: result[0],
+            self: req.session.user,
+            url: username,
+            isFollowed
           });
         } else {
           res.render("userout.njk", {

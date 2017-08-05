@@ -49,7 +49,12 @@
             <option value="single">Single</option>
           </select>
           {% endif %}
-
+          <br>
+          {% if data.showEmail == true %}
+          Show email<input type="checkbox" name="showemail" value="true" checked>
+          {% else %}
+          Show email<input type="checkbox" name="showemail" value="true">
+          {% endif %}
           <input type="text" name="about" placeholder="Description: " value="{{ data.description.about }}">
           <input type="address" name="address" placeholder="Address: " value="{{ data.description.address }}">
           <input type="link" name="link" placeholder="Link: " value="{{ data.description.link }}">
@@ -68,6 +73,10 @@
           <input type="submit">
         </form>
       </fieldset>
+      <br><br>
+      <form action="/delete" method="post">
+        <input type="submit" name="del" value="Delete Account">
+      </form>
     </div>
     <script src="script/setting.js"></script>
   </body>
