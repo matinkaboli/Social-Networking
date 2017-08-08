@@ -9,6 +9,11 @@ let db = mongoose.connection;
 let Schema = mongoose.Schema;
 // If error happened
 db.on("error", console.error.bind(console, "Connection failed."));
+// Create schema for followers (including time and username)
+const followSchema = new Schema({
+  usern: String,
+  time: String
+});
 // Create schema for user
 const userSchema = new Schema({
   name: String,
@@ -16,7 +21,6 @@ const userSchema = new Schema({
     type: String,
     required: true,
     unique: true,
-    minlength: 5,
     trim: true
   },
   password: { type: String, required: true },
@@ -32,7 +36,7 @@ const userSchema = new Schema({
     avatar: { type: String },
     case: { type: Boolean }
   },
-  follower: [String],
+  follower: [followSchema],
   following: [String],
   admin: { type: Boolean }
 });

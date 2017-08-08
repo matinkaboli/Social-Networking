@@ -23,6 +23,7 @@ posts(
   session,
   multer,
   imageSize,
+  db,
   db.checkUserAndEmail,
   db.ckeckUserAndPassword,
   db.User

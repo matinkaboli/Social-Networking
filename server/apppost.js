@@ -13,6 +13,7 @@ function posts(
   session,
   multer,
   imageSize,
+  db,
   checkUserAndEmail,
   ckeckUserAndPassword,
   User
@@ -196,6 +197,10 @@ function posts(
     const UTFObj = {
       username: req.body.userToFollow.toLowerCase()
     };
+    const userSch = {
+      usern: req.body.watcher.toLowerCase(),
+      time: Date()
+    };
     User.find(watcherObj, (err, tank) => {
       if (err) throw err;
       tank[0].following.push(req.body.userToFollow.toLowerCase());
@@ -207,7 +212,7 @@ function posts(
     });
     User.find(UTFObj, (err, tank) => {
       if (err) throw err;
-      tank[0].follower.push(req.body.watcher.toLowerCase());
+      tank[0].follower.push(userSch);
       tank[0].save((err, updatedTank) => {
         if (err) throw err;
       });
@@ -217,10 +222,12 @@ function posts(
     const condition = {
       username: req.body.watcher.toLowerCase()
     };
+    const UTF = req.body.userToFollow.toLowerCase();
+    const Watcher = req.body.watcher.toLowerCase();
     User.find(condition, (err, tank) => {
       if (err) throw err;
-      const f = tank[0].following;
-      const index = f.indexOf(req.body.userToFollow.toLowerCase());
+      let f = tank[0].following;
+      let index = f.indexOf(UTF);
       f.splice(index, 1);
       tank[0].save((err, updatedTank) => {
         if (err) throw err;
@@ -229,11 +236,14 @@ function posts(
       });
     });
     User.find(
-      { username: req.body.userToFollow.toLowerCase() },
+      { username: UTF },
       (err, tank) => {
         if (err) throw err;
-        const f = tank[0].follower;
-        const index = f.indexOf(req.body.watcher.toLowerCase());
+        function findFollower(element) {
+          return element.usern === Watcher;
+        }
+        let f = tank[0].follower;
+        let index = f.findIndex(findFollower);
         f.splice(index, 1);
         tank[0].save((err, updatedTank) => {
           if (err) throw err;

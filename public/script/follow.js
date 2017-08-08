@@ -1,6 +1,7 @@
 const fol = document.getElementById("fol");
 const UTF = document.getElementById("userToFollow");
 const watcher = document.getElementById("watcher");
+const count = document.getElementById("count");
 
 fol.addEventListener("click", () => {
   const configuration = {
@@ -27,7 +28,9 @@ function followed(url, config) {
     .then(data => {
       if (data.fo === "unfollowed") {
         fol.value = "FOLLOW";
+        count.innerHTML = parseInt(count.innerHTML) - 1;
       } else if (data.fo === "followed") {
+        count.innerHTML = parseInt(count.innerHTML) + 1;
         fol.value = "UNFOLLOW";
       }
     });

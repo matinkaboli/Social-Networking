@@ -51,7 +51,7 @@ function gets(app, db) {
     });
   });
   app.get("/user/:username", (req, res) => {
-    const username = req.params.username;
+    const username = req.params.username.toLowerCase();
     const condition = { username };
     db.User.find(condition, (err, result) => {
       if (err) throw err;
@@ -65,13 +65,28 @@ function gets(app, db) {
           let con = {
             username: req.session.user.toLowerCase()
           };
-          let isFollowed = result[0].follower.includes(userSes);
-          res.render("userin.njk", {
-            data: result[0],
-            self: req.session.user,
-            url: username,
-            isFollowed
-          });
+          let isFollowed = result[0].follower;
+          let finder = 0;
+          for (var i = 0; i < isFollowed.length; i++) {
+            if(isFollowed[i].usern == userSes) {
+              finder++;
+            }
+          }
+          if (finder == 0) {
+            res.render("userin.njk", {
+              data: result[0],
+              self: req.session.user,
+              url: username,
+              isFollowed: false
+            });
+          } else {
+            res.render("userin.njk", {
+              data: result[0],
+              self: req.session.user,
+              url: username,
+              isFollowed: true
+            });
+          }
         } else {
           res.render("userout.njk", {
             data: result[0]
@@ -79,6 +94,9 @@ function gets(app, db) {
         }
       }
     });
+  });
+  app.get("/contact", (req, res) => {
+    res.render("contact.njk");
   });
 }
 
