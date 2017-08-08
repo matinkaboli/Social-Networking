@@ -14,6 +14,12 @@ const followSchema = new Schema({
   usern: String,
   time: String
 });
+// Create schema for every post that user create
+const postSchema = new Schema({
+  title: String,
+  address: String,
+  time: String
+});
 // Create schema for user
 const userSchema = new Schema({
   name: String,
@@ -38,6 +44,7 @@ const userSchema = new Schema({
   },
   follower: [followSchema],
   following: [String],
+  posts: [postSchema],
   admin: { type: Boolean }
 });
 // Before saving

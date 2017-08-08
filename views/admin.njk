@@ -3,8 +3,10 @@
   <head>
     <meta charset="utf-8">
     <title>Welcome</title>
+    <link rel="stylesheet" href="styles/admin.css">
   </head>
   <body>
+    <h1 id="username">{{ data.username }}</h1>
     {% if  data.description.avatar %}
     <img src="{{ 'profile/' + data.description.avatar }}">
     {% else %}
@@ -15,5 +17,25 @@
     <form action="/logout" method="post">
       <input type="submit" value="LOGOUT">
     </form>
+    <br>
+    <a href="#container">Create Post</a>
+    <div id="container">
+      <div id="modal">
+        <input type="text" id="title" placeholder="Title: ">
+        <textarea id="content" placeholder="Content: "></textarea>
+        <a href="#" id="sendpost"><button>POST</button></a>
+      </div>
+    </div>
+    <table border="1">
+
+      {% for item in data.posts %}
+        <tr>
+          <td>{{ item.title }}</td>
+          <td>{{ item.time }}</td>
+          <td>{{ item.time }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+    <script src="script/sendpost.js"></script>
   </body>
 </html>

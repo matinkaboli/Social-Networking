@@ -7,6 +7,8 @@ const sharp = require("sharp");
 const mail = require("./mail");
 const enc = require("./enc");
 const removeFile = require("./fs");
+const msg = require("./msg");
+const sendPost = require("./posts");
 
 function posts(
   app,
@@ -235,21 +237,18 @@ function posts(
         res.json(req.body);
       });
     });
-    User.find(
-      { username: UTF },
-      (err, tank) => {
-        if (err) throw err;
-        function findFollower(element) {
-          return element.usern === Watcher;
-        }
-        let f = tank[0].follower;
-        let index = f.findIndex(findFollower);
-        f.splice(index, 1);
-        tank[0].save((err, updatedTank) => {
-          if (err) throw err;
-        });
+    User.find({ username: UTF }, (err, tank) => {
+      if (err) throw err;
+      function findFollower(element) {
+        return element.usern === Watcher;
       }
-    );
+      let f = tank[0].follower;
+      let index = f.findIndex(findFollower);
+      f.splice(index, 1);
+      tank[0].save((err, updatedTank) => {
+        if (err) throw err;
+      });
+    });
   });
   app.post("/delete", (req, res) => {
     const condition = { username: req.session.user.toLowerCase() };
@@ -263,6 +262,30 @@ function posts(
         if (err) throw err;
         req.session.destroy();
         res.redirect("/");
+      });
+    });
+  });
+  app.post("/contact", (req, res) => {
+    const post = req.body;
+    msg(post.name, post.email, post.content);
+    res.json({ ok: true });
+  });
+  app.post("/sendpost", (req, res) => {
+    const gen = stringing.unique(30);
+    const user = req.body.username.toLowerCase();
+    sendPost(user, req.body.content, gen);
+    res.json(req.body);
+
+    User.find({ username: user }, (err, tank) => {
+      if (err) throw err;
+      const userSch = {
+        title: req.body.title,
+        address: gen,
+        time: Date()
+      };
+      tank[0].posts.push(userSch);
+      tank[0].save((err, updatedTank) => {
+        if (err) throw err;
       });
     });
   });

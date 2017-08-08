@@ -1,3 +1,5 @@
+const showData = require("./showdata");
+
 function gets(app, db) {
   // Auth users with session
   const auth = (req, res, next) => {
@@ -45,6 +47,8 @@ function gets(app, db) {
       password: req.session.pass
     };
     db.User.find(condition, (err, answer) => {
+      const postAddress = "/home/matin/Documents/facebook/userpost/";
+      const fullAddress =
       res.render("admin.njk", {
         data: answer[0]
       });
@@ -68,7 +72,7 @@ function gets(app, db) {
           let isFollowed = result[0].follower;
           let finder = 0;
           for (var i = 0; i < isFollowed.length; i++) {
-            if(isFollowed[i].usern == userSes) {
+            if (isFollowed[i].usern == userSes) {
               finder++;
             }
           }

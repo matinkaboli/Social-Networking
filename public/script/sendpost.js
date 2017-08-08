@@ -1,9 +1,9 @@
-const send = document.getElementById("send");
-const name = document.getElementById("name");
-const email = document.getElementById("email");
+const title = document.getElementById("title");
 const content = document.getElementById("content");
+const sendpost = document.getElementById("sendpost");
+const username = document.getElementById("username");
 
-send.addEventListener("click", () => {
+sendpost.addEventListener("click", () => {
   const configuration = {
     method: "POST",
     headers: {
@@ -11,21 +11,19 @@ send.addEventListener("click", () => {
       "Accept": "application/json"
     },
     body: JSON.stringify({
-      name: name.value,
-      email: email.value,
-      content: content.value
+      title: title.value,
+      content: content.value,
+      username: username.innerHTML
     })
   };
-  sendEmail("/contact", configuration);
+  sendEmail("/sendpost", configuration);
 });
 function sendEmail(url, configuration) {
   fetch(url, configuration)
     .then(checkStatus)
     .then(res => res.json())
     .then(data => {
-      if (data.ok) {
-        alert("Message has sent, thank you for feedback.");
-      }
+      console.log(data);
     });
 }
 function checkStatus(res) {
