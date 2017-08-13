@@ -26,6 +26,7 @@
       <p>Single</p>
     {% endif %}
     <p>Followers: {{ data.follower | length }}</p>
+    <p>Followings: {{ data.following | length }}</p>
     {% if data.description.about %}
       <p>{{ data.description.about }}</p>
     {% endif %}

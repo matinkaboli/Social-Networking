@@ -26,16 +26,10 @@
         <a href="#" id="sendpost"><button>POST</button></a>
       </div>
     </div>
-    <table border="1">
+    <table border="1" id="showposts">
 
-      {% for item in data.posts %}
-        <tr>
-          <td>{{ item.title }}</td>
-          <td>{{ item.time }}</td>
-          <td>{{ item.time }}</td>
-        </tr>
-      {% endfor %}
     </table>
     <script src="script/sendpost.js"></script>
+    <script src="script/getpost.js"></script>
   </body>
 </html>

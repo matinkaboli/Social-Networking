@@ -2,6 +2,7 @@ const fs = require("fs");
 const stringing = require("stringing");
 
 function saveMessage(name, email, text) {
+  // Save contact us in messages directory
   const msg = `Name: ${name}
 Email: ${email}
 text: ${text}`;

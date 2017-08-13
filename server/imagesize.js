@@ -1,5 +1,5 @@
 const fs = require("fs");
-
+// Get user avatar and make it 300x300
 function imageSize(Sharp, filename) {
   const fulladdress = "/home/matin/Documents/projects/facebook/public/profile/";
   const readable = fs.createReadStream(fulladdress + filename);

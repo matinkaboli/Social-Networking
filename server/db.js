@@ -90,6 +90,7 @@ function checkToken(url) {
     });
   });
 }
+// Does username exist?
 function checkUsername(username) {
   return new Promise((resolve, reject) => {
     User.find({ username }, (err, result) => {
