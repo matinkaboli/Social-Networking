@@ -1,5 +1,5 @@
-const showPosts = document.getElementById("showposts");
-const user = document.getElementById("username");
+const newPost = document.getElementById("newpost");
+
 window.onload = () => {
   const configuration = {
     method: "POST",
@@ -8,7 +8,7 @@ window.onload = () => {
       "Accept": "application/json"
     },
     body: JSON.stringify({
-      username: username.innerHTML
+      username
     })
   };
   showP("/allposts", configuration);
@@ -18,12 +18,19 @@ function showP(url, configuration) {
     .then(checkStatus)
     .then(res => res.json())
     .then(data => {
-      if (data.ok) {
-        console.log(data.posts[0]);
+      if (data.ok === false) {
+        newPost.innerHTML = "User doesn't have any post.";
       } else {
-        console.log("Fuck");
+        showPostToUser();
       }
     });
+}
+function showPostToUser() {
+  if (data.posts.length > 10) {
+    for (let i = 0; i < data.post.length; i++) {
+      console.log(data.post[i]);
+    }
+  }
 }
 function checkStatus(res) {
   if (res.status >= 200 && res.status < 300) {

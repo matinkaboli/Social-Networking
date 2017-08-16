@@ -1,6 +1,4 @@
 const fol = document.getElementById("fol");
-const UTF = document.getElementById("userToFollow");
-const watcher = document.getElementById("watcher");
 const count = document.getElementById("count");
 
 fol.addEventListener("click", () => {
@@ -11,8 +9,7 @@ fol.addEventListener("click", () => {
       "Accept": "application/json"
     },
     body: JSON.stringify({
-      userToFollow: UTF.value,
-      watcher: watcher.value
+      watcher
     })
   };
   if (fol.value === "FOLLOW") {

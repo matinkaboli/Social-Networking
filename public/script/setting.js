@@ -87,3 +87,14 @@ function checkStatus(res) {
 function prevent(e) {
   e.preventDefault();
 }
+/* function getInfo() {
+  const file = document.getElementById("ftu");
+  console.log(file);
+  const imageName = file[0].name.split('.');
+  const ext = imageName[imageName.length - 1];
+  if (ext === "jpg" || ext === "png") {
+    return true;
+  }
+  alert("Upload an image...");
+  return false;
+} */

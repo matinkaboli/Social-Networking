@@ -12,13 +12,13 @@ db.on("error", console.error.bind(console, "Connection failed."));
 // Create schema for followers (including time and username)
 const followSchema = new Schema({
   usern: String,
-  time: String
+  time: Number
 });
 // Create schema for every post that user create
 const postSchema = new Schema({
   title: String,
   address: String,
-  time: String
+  time: Number
 });
 // Create schema for user
 const userSchema = new Schema({

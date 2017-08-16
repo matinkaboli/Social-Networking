@@ -37,6 +37,6 @@ app.use((req, res, next) => {
   });
 });
 // Listen to 8080 port
-app.listen(81, () => {
-  console.log("The server is running on port 81");
+app.listen(8080, () => {
+  console.log("The server is running on port 8080");
 });

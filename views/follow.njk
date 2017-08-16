@@ -1,13 +1,19 @@
 {% if self == url %}
 <p>Yourself</p>
 {% elif isFollowed %}
-<input type="hidden" id="userToFollow" value="{{ url }}">
-<input type="hidden" id="watcher" value="{{ self }}">
 <input type="submit" id="fol" value="UNFOLLOW">
+<script src="../script/follow.js"></script>
 {% else %}
-<input type="hidden" id="userToFollow" value="{{ url }}">
-<input type="hidden" id="watcher" value="{{ self }}">
 <input type="submit" id="fol" value="FOLLOW">
+<script>
+  const username = "{{ data.username }}";
+  const watcher = "{{ self }}";
+</script>
+<script src="../script/follow.js"></script>
 {% endif %}
+<script>
+  const username = "{{ data.username }}";
+  const watcher = "{{ self }}";
+</script>
 <p>Followers: <span id="count">{{ data.follower | length }}</span></p>
 <p>Following: <span id="count">{{ data.following | length }}</span></p>

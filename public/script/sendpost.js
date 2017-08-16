@@ -1,7 +1,6 @@
 const title = document.getElementById("title");
 const content = document.getElementById("content");
 const sendpost = document.getElementById("sendpost");
-const username = document.getElementById("username");
 
 sendpost.addEventListener("click", () => {
   const configuration = {
@@ -13,7 +12,7 @@ sendpost.addEventListener("click", () => {
     body: JSON.stringify({
       title: title.value,
       content: content.value,
-      username: username.innerHTML
+      username
     })
   };
   sendEmail("/sendpost", configuration);

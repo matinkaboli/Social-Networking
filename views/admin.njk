@@ -2,34 +2,21 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Welcome</title>
-    <link rel="stylesheet" href="styles/admin.css">
+    <title>{{ data.name }}</title>
   </head>
   <body>
-    <h1 id="username">{{ data.username }}</h1>
+
+    <h1>{{ data.username }}</h1>
     {% if  data.description.avatar %}
     <img src="{{ 'profile/' + data.description.avatar }}">
     {% else %}
-    <img src="{{ 'default/man.jpg' }}">
+    <img src="default/man.jpg">
     {% endif %}
-    <a href="/setting">Setting</a>
-    <br>
+    <form action="/setting">
+      <input type="submit" value="SETTING">
+    </form>
     <form action="/logout" method="post">
       <input type="submit" value="LOGOUT">
     </form>
-    <br>
-    <a href="#container">Create Post</a>
-    <div id="container">
-      <div id="modal">
-        <input type="text" id="title" placeholder="Title: ">
-        <textarea id="content" placeholder="Content: "></textarea>
-        <a href="#" id="sendpost"><button>POST</button></a>
-      </div>
-    </div>
-    <table border="1" id="showposts">
-
-    </table>
-    <script src="script/sendpost.js"></script>
-    <script src="script/getpost.js"></script>
   </body>
 </html>

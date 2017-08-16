@@ -33,6 +33,10 @@
     {% if data.description.address %}
       <p>{{ data.description.address }}</p>
     {% endif %}
-
+    <div id="newpost"></div>
+    <script>
+      const username = "{{ data.username }}";
+    </script>
+    <script src="../script/getpost.js"></script>
   </body>
 </html>

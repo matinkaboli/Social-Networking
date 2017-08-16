@@ -32,3 +32,36 @@ header input[type="submit"] {
 header input[type="submit"]:hover {
   background-color: #e63870;
 }
+main input {
+  display: block;
+  margin: 25px;
+}
+main {
+  padding: 45px;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+}
+div#register-content {
+  padding: 40px;
+  border-radius: 25px;
+  border: 3px solid black;
+  background-color: red;
+}
+footer {
+  bottom: 0;
+  position: absolute;
+  width: 100%;
+  height: auto;
+  padding: 20px 0;
+  background-color: black;
+  color: white;
+  text-align: center;
+}

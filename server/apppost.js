@@ -10,6 +10,8 @@ const removeFile = require("./fs");
 const msg = require("./msg");
 const sendPost = require("./posts");
 const removeUserData = require("./removeuserdata");
+const { removeFollowings } = require("./removefollow");
+const { removeFollowers } = require("./removefollow");
 
 function posts(
   app,
@@ -27,36 +29,31 @@ function posts(
   // After register =
   app.post("/", (req, res) => {
     // Make username and email lowercase
-    let username = req.body.username.toLowerCase();
-    let email = req.body.email.toLowerCase();
+    const username = req.body.username.toLowerCase();
+    const email = req.body.email.toLowerCase();
     // Create a random link (token)
-    let uniqueLink = stringing.unique(40);
+    const uniqueLink = stringing.unique(40);
     // Set fields to User object
-    let defaultPhoto = "../public/default/man.jpg";
+    const defaultPhoto = "../public/default/man.jpg";
     // Show email on user page
-    let validShow;
-    if (req.body.showemail) {
-      validShow = true;
-    } else {
-      validShow = false;
-    }
+    const validShow = req.body.showemail ? true : false;
+
     const user = new User({
       name: req.body.name,
       // Encrypt Password
       password: enc.encrypt(crypto, req.body.password),
       // Set random link to emailurl
       emailurl: uniqueLink,
+      showEmail: validShow,
       username,
-      email,
-      showEmail: validShow
+      email
     });
     // Check if username or email taken by someone else
-    checkUserAndEmail(req.body.username, req.body.email)
+    checkUserAndEmail(username, email)
       .then(answer => {
         // Save user to the session for 7 days.
-        req.session.user = req.body.username.toLowerCase();
+        req.session.user = username;
         req.session.pass = enc.encrypt(crypto, req.body.password);
-        req.session.id = answer[0]._id;
         // Save object
         user.save(err => {
           if (err) throw err;
@@ -67,14 +64,16 @@ function posts(
       })
       .catch(e => {
         res.render("failedregister.njk", {
-          username: user.username,
-          email: user.email
+          username,
+          email
         });
       });
   });
   // Check username using fetch in script/register.js
   app.post("/checkuser", (req, res) => {
-    checkUserAndEmail(req.body.username, req.body.email)
+    const username = req.body.username;
+    const email = req.body.email;
+    checkUserAndEmail(username, email)
       .then(answer => {
         // Send true to the client
         req.body.ok = true;
@@ -88,7 +87,9 @@ function posts(
   });
   // Check email using fetch in script/register.js
   app.post("/checkemail", (req, res) => {
-    checkUserAndEmail(req.body.username, req.body.email)
+    const username = req.body.username;
+    const email = req.body.email;
+    checkUserAndEmail(username, email)
       .then(answer => {
         // Send true to the client
         req.body.ok = true;
@@ -102,14 +103,13 @@ function posts(
   });
   app.post("/login", (req, res) => {
     // Always make it lowercase ..
-    let user = req.body.username.toLowerCase();
+    const username = req.body.username.toLowerCase();
     // Check username and encryped password
-    ckeckUserAndPassword(user, enc.encrypt(crypto, req.body.password))
+    ckeckUserAndPassword(username, enc.encrypt(crypto, req.body.password))
       .then(answer => {
         // Save user to the sessino for 7 days
-        req.session.user = req.body.username.toLowerCase();
+        req.session.user = username;
         req.session.pass = enc.encrypt(crypto, req.body.password);
-        req.session.id = answer[0]._id;
         res.redirect("/admin");
       })
       .catch(e => {
@@ -127,12 +127,17 @@ function posts(
       name: req.body.name,
       username: req.body.username.toLowerCase(),
       email: req.body.email.toLowerCase(),
-      description: {
-        about: req.body.about,
-        address: req.body.address,
-        link: req.body.link
-      }
+      description: {}
     };
+    if (req.body.about) {
+      update.description.about = req.body.about;
+    }
+    if (req.body.address) {
+      update.description.address = req.body.address;
+    }
+    if (req.body.link) {
+      update.description.link = req.body.link;
+    }
     // Check select input
     if (req.body.sex === "male") {
       update.description.sex = true;
@@ -158,9 +163,14 @@ function posts(
           update.description.avatar = result[0].description.avatar;
         }
       } else {
-        let file = req.file.filename;
-        update.description.avatar = req.file.filename + "a";
-        imageSize(sharp, file);
+        const mime = req.file.mimetype;
+        if (mime === "image/jpeg" || mime === "image/png") {
+          const file = req.file.filename;
+          update.description.avatar = file + 'a';
+          imageSize(sharp, file);
+        } else {
+          update.description.avatar = result[0].description.avatar;
+        }
       }
     });
     // Set in DB
@@ -185,7 +195,7 @@ function posts(
     // Set in DB
     User.update(condition, update, (err, numAffected) => {
       // bring user to Admin page after updating setting
-      res.render("admin.njk");
+      res.redirect("admin");
     });
   });
   // Remove session and direct to Login page
@@ -194,23 +204,26 @@ function posts(
     res.redirect("/");
   });
   app.post("/follow", (req, res) => {
+    const wholeLink = req.headers.referer.split('/');
+    const UTF = wholeLink[a.length - 1].toLowerCase();
+    const watcher = req.body.watcher.toLowerCase();
     // The user who is going to follow SB:
     const watcherObj = {
-      username: req.body.watcher.toLowerCase()
+      username: watcher
     };
     // The user who is going to be followed.
     const UTFObj = {
-      username: req.body.userToFollow.toLowerCase()
+      username: UTF
     };
     // The object for save in DB
     const userSch = {
-      usern: req.body.watcher.toLowerCase(),
-      time: Date()
+      usern: watcher,
+      time: Date.now()
     };
     // Save in DB
     User.find(watcherObj, (err, tank) => {
       if (err) throw err;
-      tank[0].following.push(req.body.userToFollow.toLowerCase());
+      tank[0].following.push(UTF);
       tank[0].save((err, updatedTank) => {
         if (err) throw err;
         req.body.fo = "followed";
@@ -226,13 +239,14 @@ function posts(
     });
   });
   app.post("/unfollow", (req, res) => {
-    const condition = {
-      username: req.body.watcher.toLowerCase()
-    };
-    // User who is going to be unfollowd
-    const UTF = req.body.userToFollow.toLowerCase();
+    const wholeLink = req.headers.referer.split('/');
+    const UTF = wholeLink[a.length - 1].toLowerCase();
     // User who is going to unfollow SB
     const Watcher = req.body.watcher.toLowerCase();
+
+    const condition = {
+      username: Watcher
+    };
     User.find(condition, (err, tank) => {
       if (err) throw err;
       // Find it in DB and then remove it
@@ -272,35 +286,9 @@ function posts(
       // Remove his posts in userpost
       removeUserData(result[0].username);
       // Remove him on list of his followings' followers :|
-      if (result[0].following.length > 0) {
-        for (let i = 0; i < result[0].following.length; i++) {
-          User.find({ username: result[0].following[i] }, (err, tank) => {
-            if (err) throw err;
-            function findFollower(element) {
-              return element.usern === result[0].username;
-            }
-            let f = tank[0].follower;
-            let index = f.findIndex(findFollower);
-            f.splice(index, 1);
-            tank[0].save((err, updatedTank) => {
-              if (err) throw err;
-            });
-          });
-        }
-      }
+      removeFollowings(result[0], User);
       // Remove him from followers
-      if (result[0].follower.length > 0) {
-        for (let i = 0; i < result[0].follower.length; i++) {
-          User.find({ username: result[0].follower[i] }, (err, tank) => {
-            let f = tank[0].following;
-            let ind = f.indexOf(result[0].username);
-            f.splice(ind, 1);
-            tank[0].save((err, updatedTank) => {
-              if (err) throw err;
-            });
-          });
-        }  
-      }
+      removeFollowers(result[0], User);
       // Remove the user
       User.find(condition).remove((err, aff) => {
         if (err) throw err;
@@ -312,7 +300,7 @@ function posts(
   app.post("/contact", (req, res) => {
     const post = req.body;
     // Save message in messages directory
-    msg(post.name, post.email, post.content);
+    msg(post.name, post.email.toLowerCase(), post.content);
     // Send something in to the client
     res.json({ ok: true });
   });
@@ -320,18 +308,18 @@ function posts(
     // Create a uniqu e link for the post
     const gen = stringing.unique(30);
     // Find the user who is going to create a post
-    const user = req.body.username.toLowerCase();
+    const username = req.body.username.toLowerCase();
     // Save post in userpost directory
-    sendPost(user, req.body.content, gen);
+    sendPost(username, req.body.content, gen);
     // Send something in to the client
     res.json(req.body);
     // Save the post link, title and the date of that in the DB
-    User.find({ username: user }, (err, tank) => {
+    User.find({ username }, (err, tank) => {
       if (err) throw err;
       const userSch = {
         title: req.body.title,
         address: gen,
-        time: Date()
+        time: Date.now()
       };
       tank[0].posts.push(userSch);
       tank[0].save((err, updatedTank) => {
@@ -341,22 +329,17 @@ function posts(
   });
   app.post("/allposts", (req, res) => {
     User.find({ username: req.body.username.toLowerCase() }, (err, result) => {
-      /* if (result[0].posts == true) {
-
+      if (result[0].posts.length === 0) {
+        res.json({ ok: false });
+      } else {
         const postResult = result[0].posts;
-
-        if (JSON.stringify(postResult) === "[]") {
-          res.json({ ok: false });
-
-        } else {
-          const obj = {
-            ok: true,
-            len: postResult.length,
-            posts: postResult
-          };
-          res.json(obj);
-        }
-      } */
+        const obj = {
+          ok: true,
+          len: postResult.length,
+          posts: postResult
+        };
+        res.json(obj);
+      }
     });
   });
 }
