@@ -15,7 +15,6 @@ function sendEm(nodemailer, to, text) {
   };
   transport.sendMail(mailOption, (err, info) => {
     if (err) throw err;
-    console.log(`Email sent: ${into.response}`);
   });
 }
 

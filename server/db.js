@@ -1,5 +1,7 @@
 // Main module
 const mongoose = require("mongoose");
+mongoose.Promise = require("bluebird");
+
 // Connect to mongodb
 mongoose.connect("mongodb://localhost/test", {
   useMongoClient: true
@@ -9,11 +11,7 @@ let db = mongoose.connection;
 let Schema = mongoose.Schema;
 // If error happened
 db.on("error", console.error.bind(console, "Connection failed."));
-// Create schema for followers (including time and username)
-const followSchema = new Schema({
-  usern: String,
-  time: Number
-});
+
 // Create schema for every post that user create
 const postSchema = new Schema({
   title: String,
@@ -42,7 +40,7 @@ const userSchema = new Schema({
     avatar: { type: String },
     case: { type: Boolean }
   },
-  follower: [followSchema],
+  follower: [String],
   following: [String],
   posts: [postSchema],
   admin: { type: Boolean }
@@ -100,7 +98,27 @@ function checkUsername(username) {
     })
   })
 }
-
+/* function showFol(user, begin, end) {
+  let b = begin;
+  const lib = [];
+  return new Promise((resolve, reject) => {
+    for (; b < end; b++) {
+      if (user[b] !== undefined) {
+        User.find({ username: user[b] }, (err, ping) => {
+          let obj = {
+            username: ping[0].username,
+            avatar: ping[0].description.avatar || undefined
+          };
+          lib.push(obj);
+        });
+      }
+      if (begin + 1 == end) {
+        resolve(lib);
+        console.log(lib);
+      }
+    }
+  })
+} */
 module.exports = {
   User,
   checkUserAndEmail,

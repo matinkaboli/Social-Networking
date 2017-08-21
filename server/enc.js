@@ -6,7 +6,7 @@ function encrypt(crypto, text) {
   return crypted;
 }
 // Decrypt password
-function decrypt(crypt, text) {
+function decrypt(crypto, text) {
   let decipher = crypto.createDecipher("aes-256-ctr", "peshkelmachalaq");
   let dec = decipher.update(text, "hex", "utf8");
   dec += decipher.final("utf8");

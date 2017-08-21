@@ -18,5 +18,13 @@ function removeUserData(username) {
     removeAllFiles(address);
   }
 }
+function removeOldImage(address) {
+  const dir = "/home/matin/Documents/projects/facebook/public/profile/";
+  const full  = `${dir}${address}`;
+  fs.unlink(full, err => {
+    if (err) throw err;
+  });
+}
 
-module.exports = removeUserData;
+module.exports.removeOldImage = removeOldImage;
+module.exports.removeUserData = removeUserData;

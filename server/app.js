@@ -4,6 +4,7 @@ const nunjucks = require("nunjucks");
 const bodyParser = require("body-parser");
 const session = require("express-session");
 const multer = require("multer");
+const helmet = require("helmet");
 // Import files
 const db = require("./db");
 const configs = require("./configure");
@@ -14,7 +15,7 @@ const imageSize = require("./imagesize");
 // Start
 const app = express();
 // Express configuration
-configs(app, express, bodyParser, nunjucks, session);
+configs(app, express, bodyParser, nunjucks, session, helmet);
 // GET Routing
 gets(app, db);
 // POST routing

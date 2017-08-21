@@ -1,5 +1,6 @@
 const fol = document.getElementById("fol");
-const count = document.getElementById("count");
+const countFollower = document.getElementById("count-follower");
+const countFollowing = document.getElementById("count-following");
 
 fol.addEventListener("click", () => {
   const configuration = {
@@ -25,9 +26,9 @@ function followed(url, config) {
     .then(data => {
       if (data.fo === "unfollowed") {
         fol.value = "FOLLOW";
-        count.innerHTML = parseInt(count.innerHTML) - 1;
+        countFollower.innerHTML = parseInt(countFollower.innerHTML) - 1;
       } else if (data.fo === "followed") {
-        count.innerHTML = parseInt(count.innerHTML) + 1;
+        countFollower.innerHTML = parseInt(countFollower.innerHTML) + 1;
         fol.value = "UNFOLLOW";
       }
     });

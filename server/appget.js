@@ -37,7 +37,7 @@ function gets(app, db) {
         });
       })
       .catch(e => {
-        console.log(e);
+        console.error(e);
         res.send("Error...");
       });
   });
@@ -55,56 +55,127 @@ function gets(app, db) {
     });
   });
   app.get("/user/:username", (req, res) => {
-    // User page
-    const username = req.params.username.toLowerCase();
-    const condition = { username };
-    // Find if the user exists
-    db.User.find(condition, (err, result) => {
-      if (err) throw err;
-      if (JSON.stringify(result) == "[]") {
-        // If it doesn't
-        res.render("usernotfound.njk", {
-          url: username
-        });
-      } else {
-        // If it does, look at the watcher(logged or not)
-        if (req.session && req.session.user) {
-          const userSes = req.session.user.toLowerCase();
-          let con = {
-            username: req.session.user.toLowerCase()
-          };
-          let isFollowed = result[0].follower;
-          let finder = 0;
-          // Did you follow him/her ?
-          for (var i = 0; i < isFollowed.length; i++) {
-            if (isFollowed[i].usern == userSes) {
-              finder++;
-            }
+    if (req.query.tab) {
+
+
+      const username = req.params.username.toLowerCase();
+      db.User.find({ username }, (err, tonk) => {
+        if (req.query.tab == "following") {
+          const numPage = parseInt(req.query.page);
+          let begin = (numPage * 10) - 10;
+          let end = numPage * 10;
+
+          const list = [];
+          const lib = [];
+
+          for (; begin < end; begin++) {
+            list.push(tonk[0].following[begin]);
           }
-          // If you didn't
-          if (finder == 0) {
-            res.render("userin.njk", {
-              data: result[0],
-              self: req.session.user,
-              url: username,
-              isFollowed: false
+          function checkElements(element) {
+            return element == undefined;
+          }
+          let some = list.some(checkElements);
+          if (list.every(checkElements)) {
+            res.render("listuser.njk", {
+              status: 1,
+              done: true,
+              list,
+              username,
+              numPage
             });
-          // If you did
           } else {
-            res.render("userin.njk", {
-              data: result[0],
-              self: req.session.user,
-              url: username,
-              isFollowed: true
+            res.render("listuser.njk", {
+              status: 1,
+              done: false,
+              list,
+              username,
+              numPage,
+              some
             });
           }
-        } else {
-          res.render("userout.njk", {
-            data: result[0]
-          });
+        } else if (req.query.tab == "follower") {
+          const numPage = parseInt(req.query.page);
+          let begin = (numPage * 10) - 10;
+          let end = numPage * 10;
+
+          const list = [];
+
+          for (; begin < end; begin++) {
+            list.push(tonk[0].follower[begin]);
+          }
+          function checkElements(element) {
+            return element == undefined;
+          }
+          let some = list.some(checkElements);
+          if (list.every(checkElements)) {
+            res.render("listuser.njk", {
+              status: 2,
+              done: true,
+              list,
+              username,
+              numPage
+            });
+          } else {
+            res.render("listuser.njk", {
+              status: 2,
+              done: false,
+              list,
+              username,
+              numPage,
+              some
+            });
+          }
         }
-      }
-    });
+      });
+    } else {
+      // User page
+      const username = req.params.username.toLowerCase();
+      // Find if the user exists
+      db.User.find({ username }, (err, result) => {
+        if (err) throw err;
+        if (JSON.stringify(result) == "[]") {
+          // If it doesn't
+          res.render("usernotfound.njk", {
+            url: username
+          });
+        } else {
+          // If it does, look at the watcher(logged or not)
+          if (req.session && req.session.user) {
+            const userSes = req.session.user.toLowerCase();
+
+            let isFollowed = result[0].follower;
+            let finder = 0;
+            // Did you follow him/her ?
+            for (let i = 0; i < isFollowed.length; i++) {
+              if (isFollowed[i] == userSes) {
+                finder++;
+              }
+            }
+            // If you didn't
+            if (finder == 0) {
+              res.render("userin.njk", {
+                data: result[0],
+                self: req.session.user,
+                url: username,
+                isFollowed: false
+              });
+            // If you did
+            } else {
+              res.render("userin.njk", {
+                data: result[0],
+                self: req.session.user,
+                url: username,
+                isFollowed: true
+              });
+            }
+          } else {
+            res.render("userout.njk", {
+              data: result[0]
+            });
+          }
+        }
+      });
+    }
   });
   app.get("/contact", (req, res) => {
     res.render("contact.njk");

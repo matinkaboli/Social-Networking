@@ -9,10 +9,10 @@ const enc = require("./enc");
 const removeFile = require("./fs");
 const msg = require("./msg");
 const sendPost = require("./posts");
-const removeUserData = require("./removeuserdata");
+const { removeUserData } = require("./removeuserdata");
 const { removeFollowings } = require("./removefollow");
 const { removeFollowers } = require("./removefollow");
-
+const { removeOldImage } = require("./removeuserdata");
 function posts(
   app,
   session,
@@ -168,8 +168,14 @@ function posts(
           const file = req.file.filename;
           update.description.avatar = file + 'a';
           imageSize(sharp, file);
+          // Delete the old one.
+          if (result[0].description.avatar) {
+            removeOldImage(result[0].description.avatar);
+          }
         } else {
+          // Delete this shit.
           update.description.avatar = result[0].description.avatar;
+          removeOldImage(req.file.filename);
         }
       }
     });
@@ -205,49 +211,52 @@ function posts(
   });
   app.post("/follow", (req, res) => {
     const wholeLink = req.headers.referer.split('/');
-    const UTF = wholeLink[a.length - 1].toLowerCase();
+
+    const UTF = wholeLink[wholeLink.length - 1].toLowerCase();
     const watcher = req.body.watcher.toLowerCase();
-    // The user who is going to follow SB:
-    const watcherObj = {
-      username: watcher
-    };
-    // The user who is going to be followed.
-    const UTFObj = {
-      username: UTF
-    };
-    // The object for save in DB
-    const userSch = {
-      usern: watcher,
-      time: Date.now()
-    };
+
     // Save in DB
-    User.find(watcherObj, (err, tank) => {
+    User.find({ username: UTF }, (err, tank) => {
       if (err) throw err;
-      tank[0].following.push(UTF);
-      tank[0].save((err, updatedTank) => {
-        if (err) throw err;
+
+      let f = tank[0].follower;
+      let index = f.indexOf(watcher);
+      if (index == -1) {
+        tank[0].follower.push(watcher);
+        tank[0].save((err, updatedTank) => {
+          if (err) throw err;
+          req.body.fo = "followed";
+          res.json(req.body);
+          User.find({ username: watcher }, (err, tonk) => {
+            if (err) throw err;
+            tonk[0].following.push(UTF);
+            tonk[0].save((err, updatedTank) => {
+              if (err) throw err;
+            });
+          });
+        });
+      } else {
         req.body.fo = "followed";
         res.json(req.body);
-      });
-    });
-    User.find(UTFObj, (err, tank) => {
-      if (err) throw err;
-      tank[0].follower.push(userSch);
-      tank[0].save((err, updatedTank) => {
-        if (err) throw err;
-      });
+      }
     });
   });
   app.post("/unfollow", (req, res) => {
     const wholeLink = req.headers.referer.split('/');
-    const UTF = wholeLink[a.length - 1].toLowerCase();
-    // User who is going to unfollow SB
+
+    const UTF = wholeLink[wholeLink.length - 1].toLowerCase();
     const Watcher = req.body.watcher.toLowerCase();
 
-    const condition = {
-      username: Watcher
-    };
-    User.find(condition, (err, tank) => {
+    User.find({ username: UTF }, (err, tank) => {
+      if (err) throw err;
+      let f = tank[0].follower;
+      let index = f.indexOf(Watcher);
+      f.splice(index, 1);
+      tank[0].save((err, updatedTank) => {
+        if (err) throw err;
+      });
+    });
+    User.find({ username: Watcher }, (err, tank) => {
       if (err) throw err;
       // Find it in DB and then remove it
       let f = tank[0].following;
@@ -257,18 +266,6 @@ function posts(
         if (err) throw err;
         req.body.fo = "unfollowed";
         res.json(req.body);
-      });
-    });
-    User.find({ username: UTF }, (err, tank) => {
-      if (err) throw err;
-      function findFollower(element) {
-        return element.usern === Watcher;
-      }
-      let f = tank[0].follower;
-      let index = f.findIndex(findFollower);
-      f.splice(index, 1);
-      tank[0].save((err, updatedTank) => {
-        if (err) throw err;
       });
     });
   });
@@ -340,6 +337,21 @@ function posts(
         };
         res.json(obj);
       }
+    });
+  });
+  app.post("/deleteavatar", (req, res) => {
+    const condition = {
+      username: req.session.user.toLowerCase(),
+      password: req.session.pass
+    };
+    const query = User.find(condition);
+
+    query.then(doc => {
+      doc[0].description.avatar = undefined;
+      res.redirect("/admin");
+      doc[0].save(err => {
+        if (err) throw err;
+      });
     });
   });
 }

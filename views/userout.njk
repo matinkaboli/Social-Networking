@@ -5,34 +5,15 @@
     <title>{{ data.name }}</title>
   </head>
   <body>
-    {% if  data.description.avatar %}
-    <img src="{{ '../profile/' + data.description.avatar }}">
-    {% else %}
-    <img src="../default/man.jpg">
-    {% endif %}
-    <h1>Name: {{ data.name }}</h1>
-    <p>Username: {{ data.username }}</p>
-    {% if data.showEmail == true %}
-    <p>Email: {{ data.email }}</p>
-    {% endif %}
-    {% if data.description.sex == true %}
-      <p>Male</p>
-    {% elif data.description.sex == false %}
-      <p>Female</p>
-    {% endif %}
-    {% if data.description.sex == true %}
-      <p>Married</p>
-    {% elif data.description.sex == false %}
-      <p>Single</p>
-    {% endif %}
-    <p>Followers: {{ data.follower | length }}</p>
-    <p>Followings: {{ data.following | length }}</p>
-    {% if data.description.about %}
-      <p>{{ data.description.about }}</p>
-    {% endif %}
-    {% if data.description.address %}
-      <p>{{ data.description.address }}</p>
-    {% endif %}
+    {% include "findimage.njk" %}
+    <br><br>
+    <form>
+      <input type="submit" name="tab" value="following">
+      <span id="count-following">{{ data.following | length }}</span>
+      <input type="submit" name="tab" value="follower">
+      <span id="count-follower">{{ data.follower | length }}</span><br>
+      <input type="hidden" name="page" value="1">
+    </form>
     <div id="newpost"></div>
     <script>
       const username = "{{ data.username }}";

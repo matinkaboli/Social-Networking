@@ -61,6 +61,11 @@
           <input type="file" name="avatar" value="Profile photo" id="ftu">
           <input type="Submit" value="Submit changes">
         </form>
+        {% if data.description.avatar %}
+          <form action="/deleteavatar" method="post">
+            <input type="submit" value="DELETE AVATAR">
+          </form>
+        {% endif %}
       </fieldset>
     </div>
     <div id="passwordsetting">

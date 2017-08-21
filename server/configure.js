@@ -1,4 +1,5 @@
-function configs(app, express, bodyParser, nunjucks, session) {
+function configs(app, express, bodyParser, nunjucks, session, helmet) {
+  app.use(helmet());
   // Add static files
   app.use(express.static("public"));
 
