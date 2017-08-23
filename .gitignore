@@ -3,3 +3,5 @@ server/test.js
 public/profile
 messages/
 userpost/
+package.json
+package-lock.json

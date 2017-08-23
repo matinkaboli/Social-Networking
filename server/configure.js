@@ -1,4 +1,6 @@
-function configs(app, express, bodyParser, nunjucks, session, helmet) {
+function configs(
+  app, express, bodyParser, nunjucks, session, helmet, connectMongo
+) {
   app.use(helmet());
   // Add static files
   app.use(express.static("public"));
@@ -11,6 +13,7 @@ function configs(app, express, bodyParser, nunjucks, session, helmet) {
     express: app
   });
   // Configure session
+  const MongoStore = connectMongo(session);
   const configSession = {
     secret: "m@tinnim@125session",
     cookie: {
@@ -18,7 +21,12 @@ function configs(app, express, bodyParser, nunjucks, session, helmet) {
       httpOnly: true
     },
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true,
+    store: new MongoStore({
+      host: "127.0.0.1",
+      port: "27017",
+      url: "mongodb://localhost/session"
+    })
   };
   app.use(session(configSession));
 }

@@ -37,15 +37,15 @@ function checkUser(url, config) {
     if (data.ok) {
       // If username has space
       if (/\ /.test(username.value)) {
-        username.style.backgroundColor = "red";
+        username.style.backgroundColor = "#f03861";
         form.addEventListener("click", prevent);
       } else {
         // If everything was OK
-        username.style.backgroundColor = "green";
+        username.style.backgroundColor = "#a6ed8e";
         form.removeEventListener("click", prevent);
       }
     } else {
-      username.style.backgroundColor = "red";
+      username.style.backgroundColor = "#f03861";
       form.addEventListener("click", prevent);
     }
   });
@@ -56,15 +56,15 @@ function checkEmail(url, config) {
     if (data.ok) {
       // If username has space
       if (/\ /.test(email.value)) {
-        email.style.backgroundColor = "red";
+        email.style.backgroundColor = "#f03861";
         form.addEventListener("click", prevent);
       } else {
         // If everything was OK
-        email.style.backgroundColor = "green";
+        email.style.backgroundColor = "#a6ed8e";
         form.removeEventListener("click", prevent);
       }
     } else {
-      email.style.backgroundColor = "red";
+      email.style.backgroundColor = "#f03861";
       form.addEventListener("click", prevent);
     }
   });

@@ -12,13 +12,16 @@
       {% if done %}
         <p>There is nothing anymore.</p>
       {% else %}
-      <ul>
+      <div id="lists">
       {% for item in list %}
         {% if item != undefined %}
-        <li><a href="http://localhost:8080/user/{{ item }}"{{ item }}>{{ item }}</a></li>
+        <main>
+          <img width="50px" height="50px">
+          <a href="http://localhost:8080/user/{{ item }}">{{ item }}</a>
+        </main>
         {% endif %}
       {% endfor %}
-      </ul>
+    </div>
       {% endif %}
       <form>
         {% if status == 1 %}
@@ -37,5 +40,10 @@
         {% endif %}
         {% endif %}
       </form>
+      <script>
+        const list = "{{ list }}";
+        const sp = list.split(",");
+      </script>
+      <script src="../script/getinfofollow.js"></script>
   </body>
 </html>

@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const session = require("express-session");
 const multer = require("multer");
 const helmet = require("helmet");
+const connectMongo = require("connect-mongo");
 // Import files
 const db = require("./db");
 const configs = require("./configure");
@@ -15,7 +16,7 @@ const imageSize = require("./imagesize");
 // Start
 const app = express();
 // Express configuration
-configs(app, express, bodyParser, nunjucks, session, helmet);
+configs(app, express, bodyParser, nunjucks, session, helmet, connectMongo);
 // GET Routing
 gets(app, db);
 // POST routing

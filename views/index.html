@@ -6,27 +6,31 @@
     <link rel="stylesheet" href="styles/master.css">
   </head>
   <body>
-    <header>
-      <form action="/login" method="post">
-        <input type="text" name="username" placeholder="Username: ">
-        <input type="password" name="password" placeholder="Password: ">
-        <input type="submit" value="Login">
-      </form>
-    </header>
-    <main>
-      <div id="register-content">
-        <form action="/" method="post" id="register" onsubmit="return lastCheck()">
+    <div class="login-page">
+      <div class="form">
+        <form class="register-form" method="post" action="/" name="register">
           <input type="text" name="name" placeholder="Name: " maxlength="25" required>
           <input type="text" name="username" placeholder="Username: " maxlength="30" required>
           <input type="email" name="email" placeholder="Email: " maxlength="100" required>
           <input type="password" name="password" placeholder="Password: " maxlength="60" required>
           <input type="password" name="repassword" placeholder="Re-password: " maxlength="60" required>
-          Show Email<input type="checkbox" name="showemail" value="true">
           <input type="submit" value="Register" id="reg">
+          <p class="message">Already registered? <a href="#">Sign In</a></p>
+        </form>
+        <form class="login-form" method="post" action="/login">
+          <input type="text" name="username" placeholder="Username: ">
+          <input type="password" name="password" placeholder="Password: ">
+          <input type="submit" value="Login">
+          <p class="message">Not registered? <a href="#">Create an account</a></p>
         </form>
       </div>
-    </main>
-    <footer><p>It blongs to me.</p></footer>
+    </div>
+    <script src="script/jquery.js"></script>
+    <script>
+      $('.message a').click(function(){
+         $('form').animate({height: "toggle", opacity: "toggle"}, "slow");
+      });
+    </script>
     <script src="script/register.js"></script>
   </body>
 </html>

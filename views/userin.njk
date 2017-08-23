@@ -8,7 +8,20 @@
     {% include "findimage.njk" %}
     <br><br>
     {% include "follow.njk" %}
-    <div id="newpost"></div>
+    <table border="1">
+      <tr>
+        <th>Title</th>
+        <th>Time</th>
+        <th>Content</th>
+      </tr>
+    {% for item in list %}
+    <tr>
+      <td> {{ item.title }}</td>
+      <td> {{ item.time }}</td>
+      <td> {{ item.content }}</td>
+    </tr>
+    {% endfor %}
+    </table>
     <script src="../script/getpost.js"></script>
   </body>
 </html>

@@ -12,7 +12,7 @@ function savePost(username, content, uniqueStr) {
     });
   // If this is the first time
   } else {
-    fs.mkdir(`${dest}${username}`, err => {
+    fs.mkdir(`${dest}${username}/`, err => {
       if (err) throw err;
       fs.writeFile(`${dest}${username}/${uniqueStr}`, content, conf, err => {
         if (err) throw err;

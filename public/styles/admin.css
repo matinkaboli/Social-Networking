@@ -1,3 +1,33 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+* {
+  padding: 0;
+  margin: 0;
+}
+body {
+  display: flex;
+  font-family: "Roboto", sans-serif;
+}
+nav {
+  width: 200px;
+  height: 100%;
+  position: fixed;
+  background-color: black;
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+nav #user-name {
+  font-weight: 400;
+  font-size: 25px;
+  padding: 10px;
+}
+nav img {
+  width: 70px;
+  height: 70px;
+  border-radius: 100%;
+  padding: 15px;
+}
 #container {
   top: 0;
   left: 0;
@@ -24,4 +54,11 @@
   opacity: 1;
   visibility: visible;
   transition: opacity 1s, visibility 1s;
+}
+article {
+  width: 500px;
+  height: 100%;
+  
+  right: 0;
+  position: absolute;
 }

@@ -8,7 +8,7 @@ const mail = require("./mail");
 const enc = require("./enc");
 const removeFile = require("./fs");
 const msg = require("./msg");
-const sendPost = require("./posts");
+const savePost = require("./posts");
 const { removeUserData } = require("./removeuserdata");
 const { removeFollowings } = require("./removefollow");
 const { removeFollowers } = require("./removefollow");
@@ -57,7 +57,12 @@ function posts(
         // Save object
         user.save(err => {
           if (err) throw err;
-          res.render("admin.njk");
+          res.render("admin.njk", {
+            data: {
+              username,
+              name: req.body.name
+            }
+          });
         });
         // Send email for complete the register
         // mail(nodemailer, email, uniqueLink);
@@ -215,21 +220,36 @@ function posts(
     const UTF = wholeLink[wholeLink.length - 1].toLowerCase();
     const watcher = req.body.watcher.toLowerCase();
 
+    let watcherID, UTFID;
+    db.checkUsername(watcher)
+      .then(answer => {
+        watcherID = answer[0]._id;
+      })
+      .catch(e => {
+        console.error(e);
+      });
+    db.checkUsername(UTF)
+      .then(answer => {
+        UTFID = answer[0]._id;
+      })
+      .catch(e => {
+        console.error(e);
+      });
     // Save in DB
     User.find({ username: UTF }, (err, tank) => {
       if (err) throw err;
 
       let f = tank[0].follower;
-      let index = f.indexOf(watcher);
+      let index = f.indexOf(watcherID);
       if (index == -1) {
-        tank[0].follower.push(watcher);
+        tank[0].follower.push(watcherID);
         tank[0].save((err, updatedTank) => {
           if (err) throw err;
           req.body.fo = "followed";
           res.json(req.body);
           User.find({ username: watcher }, (err, tonk) => {
             if (err) throw err;
-            tonk[0].following.push(UTF);
+            tonk[0].following.push(UTFID);
             tonk[0].save((err, updatedTank) => {
               if (err) throw err;
             });
@@ -247,10 +267,26 @@ function posts(
     const UTF = wholeLink[wholeLink.length - 1].toLowerCase();
     const Watcher = req.body.watcher.toLowerCase();
 
+    let watcherID, UTFID;
+
+    db.checkUsername(Watcher)
+      .then(answer => {
+        watcherID = answer[0]._id;
+      })
+      .catch(e => {
+        console.error(e);
+      });
+    db.checkUsername(UTF)
+      .then(answer => {
+        UTFID = answer[0]._id;
+      })
+      .catch(e => {
+        console.error(e);
+      });
     User.find({ username: UTF }, (err, tank) => {
       if (err) throw err;
       let f = tank[0].follower;
-      let index = f.indexOf(Watcher);
+      let index = f.indexOf(watcherID);
       f.splice(index, 1);
       tank[0].save((err, updatedTank) => {
         if (err) throw err;
@@ -260,7 +296,7 @@ function posts(
       if (err) throw err;
       // Find it in DB and then remove it
       let f = tank[0].following;
-      let index = f.indexOf(UTF);
+      let index = f.indexOf(UTFID);
       f.splice(index, 1);
       tank[0].save((err, updatedTank) => {
         if (err) throw err;
@@ -302,25 +338,23 @@ function posts(
     res.json({ ok: true });
   });
   app.post("/sendpost", (req, res) => {
-    // Create a uniqu e link for the post
-    const gen = stringing.unique(30);
+    const now = Date.now();
     // Find the user who is going to create a post
     const username = req.body.username.toLowerCase();
     // Save post in userpost directory
-    sendPost(username, req.body.content, gen);
+    savePost(username, req.body.content, now.toString());
     // Send something in to the client
-    res.json(req.body);
     // Save the post link, title and the date of that in the DB
     User.find({ username }, (err, tank) => {
       if (err) throw err;
       const userSch = {
         title: req.body.title,
-        address: gen,
-        time: Date.now()
+        time: now
       };
       tank[0].posts.push(userSch);
       tank[0].save((err, updatedTank) => {
         if (err) throw err;
+        res.json(req.body);
       });
     });
   });
@@ -347,12 +381,54 @@ function posts(
     const query = User.find(condition);
 
     query.then(doc => {
+      const address =
+        "/home/matin/Documents/projects/facebook/public/profile/";
+        // Remove that file!
+      removeFile(address + doc[0].description.avatar);
       doc[0].description.avatar = undefined;
       res.redirect("/admin");
       doc[0].save(err => {
         if (err) throw err;
       });
     });
+  });
+  app.post("/getinfofollow", (req, res) => {
+    const sp = new Set(req.body.sp);
+    sp.delete('');
+
+    const arr = Array.from(sp);
+
+    for (let i = 0; i < arr.length; i++) {
+      arr[i] = parseInt(arr[i]);
+    }
+    const list = [];
+    function* getData() {
+      for (const _id of arr) {
+        yield new Promise(resolve => {
+          User.find({ _id }).then(doc => {
+            const obj = {
+              avatar: doc[0].description.avatar,
+              username: doc[0].username
+            }
+            list.push(obj);
+            resolve();
+          });
+        });
+      }
+    }
+    let iter = getData();
+
+    (function loop() {
+      const next = iter.next();
+
+      if (next.done) {
+        res.json(list);
+        return;
+      }
+      next.value.then(loop);
+    }());
+
+    // Convert to Number
   });
 }
 

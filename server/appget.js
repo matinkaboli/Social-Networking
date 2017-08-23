@@ -60,71 +60,78 @@ function gets(app, db) {
 
       const username = req.params.username.toLowerCase();
       db.User.find({ username }, (err, tonk) => {
-        if (req.query.tab == "following") {
-          const numPage = parseInt(req.query.page);
-          let begin = (numPage * 10) - 10;
-          let end = numPage * 10;
+        if (JSON.stringify(tonk) != "[]") {
+          if (req.query.tab == "following") {
+            const numPage = parseInt(req.query.page);
+            let begin = (numPage * 10) - 10;
+            let end = numPage * 10;
 
-          const list = [];
-          const lib = [];
+            const list = [];
+            const lib = [];
 
-          for (; begin < end; begin++) {
-            list.push(tonk[0].following[begin]);
-          }
-          function checkElements(element) {
-            return element == undefined;
-          }
-          let some = list.some(checkElements);
-          if (list.every(checkElements)) {
-            res.render("listuser.njk", {
-              status: 1,
-              done: true,
-              list,
-              username,
-              numPage
-            });
-          } else {
-            res.render("listuser.njk", {
-              status: 1,
-              done: false,
-              list,
-              username,
-              numPage,
-              some
-            });
-          }
-        } else if (req.query.tab == "follower") {
-          const numPage = parseInt(req.query.page);
-          let begin = (numPage * 10) - 10;
-          let end = numPage * 10;
+            for (; begin < end; begin++) {
+              list.push(tonk[0].following[begin]);
+            }
+            function checkElements(element) {
+              return element == undefined;
+            }
+            let some = list.some(checkElements);
 
-          const list = [];
+            if (list.every(checkElements)) {
+              res.render("listuser.njk", {
+                status: 1,
+                done: true,
+                list,
+                username,
+                numPage
+              });
+            } else {
+              res.render("listuser.njk", {
+                status: 1,
+                done: false,
+                list,
+                username,
+                numPage,
+                some
+              });
+            }
+          } else if (req.query.tab == "follower") {
+            const numPage = parseInt(req.query.page);
+            let begin = (numPage * 10) - 10;
+            let end = numPage * 10;
 
-          for (; begin < end; begin++) {
-            list.push(tonk[0].follower[begin]);
+            const list = [];
+
+            for (; begin < end; begin++) {
+              list.push(tonk[0].follower[begin]);
+            }
+            function checkElements(element) {
+              return element == undefined;
+            }
+            let some = list.some(checkElements);
+            if (list.every(checkElements)) {
+              res.render("listuser.njk", {
+                status: 2,
+                done: true,
+                list,
+                username,
+                numPage
+              });
+            } else {
+              res.render("listuser.njk", {
+                status: 2,
+                done: false,
+                list,
+                username,
+                numPage,
+                some
+              });
+            }
           }
-          function checkElements(element) {
-            return element == undefined;
-          }
-          let some = list.some(checkElements);
-          if (list.every(checkElements)) {
-            res.render("listuser.njk", {
-              status: 2,
-              done: true,
-              list,
-              username,
-              numPage
-            });
-          } else {
-            res.render("listuser.njk", {
-              status: 2,
-              done: false,
-              list,
-              username,
-              numPage,
-              some
-            });
-          }
+        } else {
+          res.render("usernotfound.njk", {
+            url: username
+          });
         }
       });
     } else {
@@ -144,30 +151,77 @@ function gets(app, db) {
             const userSes = req.session.user.toLowerCase();
 
             let isFollowed = result[0].follower;
-            let finder = 0;
             // Did you follow him/her ?
-            for (let i = 0; i < isFollowed.length; i++) {
-              if (isFollowed[i] == userSes) {
-                finder++;
-              }
-            }
-            // If you didn't
-            if (finder == 0) {
-              res.render("userin.njk", {
-                data: result[0],
-                self: req.session.user,
-                url: username,
-                isFollowed: false
+            let userSesID, finder;
+
+            db.checkUsername(userSes)
+              .then(answer => {
+                userSesID = answer[0]._id;
+              })
+              .then(() => {
+                function hasFollowed(username) {
+                  return username == userSesID;
+                }
+                finder = isFollowed.some(hasFollowed);
+
+
+                const list = [];
+                function* getData() {
+                  for (const post of result[0].posts) {
+                    yield new Promise(resolve => {
+                      const dir =
+                      "/home/matin/Documents/projects/facebook/userpost/";
+
+                      showData(`${dir}${result[0].username}/${post.time}`)
+                        .then(data => {
+                          const obj = {
+                            time: new Date(post.time),
+                            title: post.title,
+                            content: data
+                          }
+                          list.push(obj);
+                          resolve();
+                        })
+                        .catch(e => {
+                          console.log(e);
+                        });
+                    });
+                  }
+                }
+                let iter = getData();
+
+                (function loop() {
+                  const next = iter.next();
+
+                  if (next.done) {
+                    // If you didn't
+                    if (!finder) {
+                      res.render("userin.njk", {
+                        data: result[0],
+                        self: req.session.user,
+                        url: username,
+                        isFollowed: false,
+                        list
+                      });
+                    // If you did
+                    } else {
+                      res.render("userin.njk", {
+                        data: result[0],
+                        self: req.session.user,
+                        url: username,
+                        isFollowed: true,
+                        list
+                      });
+                    }
+                    return;
+                  }
+                  next.value.then(loop);
+                }());
+
+              })
+              .catch(e => {
+                console.error(e);
               });
-            // If you did
-            } else {
-              res.render("userin.njk", {
-                data: result[0],
-                self: req.session.user,
-                url: username,
-                isFollowed: true
-              });
-            }
           } else {
             res.render("userout.njk", {
               data: result[0]
@@ -192,7 +246,8 @@ function gets(app, db) {
         }
         let find = tank[0].posts.find(findAddress);
         if (find) {
-          let userposts = "/home/matin/Documents/projects/facebook/userpost/";
+          let userposts =
+          "/home/matin/Documents/projects/facebook/userpost/";
           userposts += us;
           userposts += '/';
           userposts += find.address;
