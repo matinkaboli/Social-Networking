@@ -8,6 +8,7 @@
     {% include "findimage.njk" %}
     <br><br>
     {% include "follow.njk" %}
+    {% if list.length != 0 %}
     <table border="1">
       <tr>
         <th>Title</th>
@@ -22,6 +23,6 @@
     </tr>
     {% endfor %}
     </table>
-    <script src="../script/getpost.js"></script>
+    {% endif %}
   </body>
 </html>

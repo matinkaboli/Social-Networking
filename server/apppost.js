@@ -68,9 +68,10 @@ function posts(
         // mail(nodemailer, email, uniqueLink);
       })
       .catch(e => {
-        res.render("failedregister.njk", {
+        res.render("index.njk", {
           username,
-          email
+          email,
+          status: 1
         });
       });
   });
@@ -118,7 +119,9 @@ function posts(
         res.redirect("/admin");
       })
       .catch(e => {
-        res.render("login.njk");
+        res.render("index.njk", {
+          status: 3
+        });
       });
   });
   app.post("/setting", multerConfig.single("avatar"), (req, res) => {
@@ -326,7 +329,9 @@ function posts(
       User.find(condition).remove((err, aff) => {
         if (err) throw err;
         req.session.destroy();
-        res.redirect("/");
+        res.render("index.njk", {
+          status: 2
+        });
       });
     });
   });
@@ -429,6 +434,66 @@ function posts(
     }());
 
     // Convert to Number
+  });
+  app.post("/forgot", (req, res) => {
+    const username = req.body.username.toLowerCase();
+    User.find({ username }, (err, result) => {
+      if (JSON.stringify(result) == "[]") {
+        res.render("index.njk", {
+          status: 3
+        });
+      } else {
+        const unique = stringing.unique(40) + '0' + result[0].username;
+        mail(nodemailer, result[0].email, unique);
+        result[0].forgot = unique;
+        result[0].save((err, updated) => {
+          res.render("index.njk", {
+            status: 4
+          });
+        });
+      }
+    });
+  });
+  app.post("/forgotchange", (req, res) => {
+    const pass = req.body.pass;
+    const repass = req.body.repass;
+    if (pass === repass) {
+      if (pass.length < 9) {
+        res.render("index.njk", {
+          status: 6
+        });
+      } else {
+        const enq = req.body.unq;
+        const enqSp = enq.split('0');
+        const username = enqSp[enqSp.length - 1];
+        User.find({ username }, (err, result) => {
+          if (JSON.stringify(result) == "[]") {
+            res.render("index.njk", {
+              status: 7
+            });
+          } else {
+            if (result[0].forgot === enq) {
+              const p = enc.encrypt(crypto, pass);
+              result[0].password = p;
+              result[0].forgot = null;
+              result[0].save((err, updated) => {
+                res.render("index.njk", {
+                  status: 8
+                });
+              });
+            } else {
+              res.render("index.njk", {
+                status: 7
+              });
+            }
+          }
+        });
+      }
+    } else {
+      res.render("index.njk", {
+        status: 5
+      });
+    }
   });
 }
 

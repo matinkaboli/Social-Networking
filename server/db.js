@@ -1,6 +1,6 @@
 // Main module
 const mongoose = require("mongoose");
-mongoose.Promise = require("bluebird");
+mongoose.Promise = Promise;
 const autoInc = require("mongoose-auto-increment");
 
 // Connect to mongodb
@@ -53,7 +53,8 @@ const userSchema = new Schema({
   follower: [Number],
   following: [Number],
   posts: [postSchema],
-  admin: { type: Boolean }
+  admin: { type: Boolean },
+  forgot: String
 });
 // Before saving
 userSchema.pre("save", next => {

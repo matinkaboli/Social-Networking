@@ -80,9 +80,10 @@
       </fieldset>
       <br><br>
       <form action="/delete" method="post">
-        <input type="submit" name="del" value="Delete Account">
+        <input type="submit" name="del" value="Delete Account" id="delac">
       </form>
     </div>
+    <script>const user = "{{ data.username }}"; </script>
     <script src="script/setting.js"></script>
   </body>
 </html>

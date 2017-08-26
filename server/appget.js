@@ -6,7 +6,9 @@ function gets(app, db) {
     if (req.session && req.session.user) {
       return next();
     } else {
-      res.render("login.njk");
+      res.render("index.njk", {
+        status: 0
+      });
     }
   };
   // Main page
@@ -14,7 +16,7 @@ function gets(app, db) {
     if (req.session && req.session.user) {
       res.redirect("/admin");
     } else {
-      res.render("index.html");
+      res.render("index.njk");
     }
   });
   // Login page, using session.
@@ -167,6 +169,7 @@ function gets(app, db) {
 
                 const list = [];
                 function* getData() {
+                  let len = result[0].posts;
                   for (const post of result[0].posts) {
                     yield new Promise(resolve => {
                       const dir =
@@ -199,18 +202,18 @@ function gets(app, db) {
                       res.render("userin.njk", {
                         data: result[0],
                         self: req.session.user,
-                        url: username,
+                        list: list.reverse(),
                         isFollowed: false,
-                        list
+                        url: username
                       });
                     // If you did
                     } else {
                       res.render("userin.njk", {
                         data: result[0],
                         self: req.session.user,
-                        url: username,
+                        list: list.reverse(),
                         isFollowed: true,
-                        list
+                        url: username
                       });
                     }
                     return;
@@ -266,6 +269,24 @@ function gets(app, db) {
         } else {
           res.send("404 Error: not found.");
         }
+      }
+    });
+  });
+  app.get("/forgot", (req, res) => {
+    res.render("forgot.njk");
+  });
+  app.get("/forgotchange/:unique", (req, res) => {
+    const forgot = req.params.unique;
+    db.User.find({ forgot }, (err, result) => {
+      if (JSON.stringify(result) == "[]") {
+        res.redirect("/");
+      } else {
+        const us = forgot.split('0');
+        const username = us[us.length - 1];
+        res.render("changepass.njk", {
+          username,
+          unq: forgot
+        });
       }
     });
   });

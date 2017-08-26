@@ -13,7 +13,7 @@ username.addEventListener("input", () => {
       Accept: "application/json"
     },
     body: JSON.stringify({
-      username: username.value.toLowerCase()
+      username: user
     })
   };
   checkUser("/checkuser", configuration);

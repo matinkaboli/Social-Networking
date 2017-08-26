@@ -10,7 +10,6 @@
   z-index: 1;
   background: #FFFFFF;
   max-width: 360px;
-  margin: 0 auto 100px;
   padding: 45px;
   text-align: center;
   box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
@@ -26,7 +25,7 @@
   box-sizing: border-box;
   font-size: 14px;
 }
-.form button {
+.form input[type=submit] {
   font-family: "Roboto", sans-serif;
   text-transform: uppercase;
   outline: 0;
@@ -40,7 +39,7 @@
   transition: all 0.3 ease;
   cursor: pointer;
 }
-.form button:hover,.form button:active,.form button:focus {
+.form input[type=submit]:hover,.form input[type=submit]:active,.form input[type=submit]:focus {
   background: #43A047;
 }
 .form .message {

@@ -4,6 +4,10 @@
     <meta charset="utf-8">
     <title>Facebook</title>
     <link rel="stylesheet" href="styles/master.css">
+    <link rel="stylesheet" href="styles/sweetalert.css">
+    <script src="script/warn.js"></script>
+    <script src="script/jquery.js"></script>
+    <script src="script/sweetalert.min.js"></script>
   </head>
   <body>
     <div class="login-page">
@@ -22,10 +26,29 @@
           <input type="password" name="password" placeholder="Password: ">
           <input type="submit" value="Login">
           <p class="message">Not registered? <a href="#">Create an account</a></p>
+          <p class="message"><a href="http://localhost:8080/forgot">Forgot Password?</a></p>
         </form>
       </div>
     </div>
-    <script src="script/jquery.js"></script>
+    {% if status == 0 %}
+      <script>status0();</script>
+    {% elif status == 1 %}
+    <script>status1();</script>
+    {% elif status == 2 %}
+    <script>status2();</script>
+    {% elif status == 3 %}
+    <script>status3();</script>
+    {% elif status == 4 %}
+    <script>status4();</script>
+    {% elif status == 5 %}
+    <script>status5();</script>
+    {% elif status == 6 %}
+    <script>status6();</script>
+    {% elif status == 7 %}
+    <script>status7();</script>
+    {% elif status == 8 %}
+    <script>status8();</script>
+    {% endif %}
     <script>
       $('.message a').click(function(){
          $('form').animate({height: "toggle", opacity: "toggle"}, "slow");
