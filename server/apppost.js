@@ -1,23 +1,21 @@
 // main modules
-const nodemailer = require("nodemailer");
 const stringing = require("stringing");
-const crypto = require("crypto");
-const sharp = require("sharp");
 // import files
-const mail = require("./mail");
-const enc = require("./enc");
+const imageSize  = require("./imagesize");
+const mail       = require("./mail");
+const enc        = require("./enc");
 const removeFile = require("./fs");
-const msg = require("./msg");
-const savePost = require("./posts");
+const msg        = require("./msg");
+const savePost   = require("./posts");
 const { removeUserData } = require("./removeuserdata");
-const { removeFollowings } = require("./removefollow");
-const { removeFollowers } = require("./removefollow");
 const { removeOldImage } = require("./removeuserdata");
+const { removeFollowings } = require("./removefollow");
+const { removeFollowers } =  require("./removefollow");
+
 function posts(
   app,
   session,
   multer,
-  imageSize,
   db,
   checkUserAndEmail,
   ckeckUserAndPassword,
@@ -38,72 +36,75 @@ function posts(
     // Show email on user page
     const validShow = req.body.showemail ? true : false;
 
-    const user = new User({
-      name: req.body.name,
-      // Encrypt Password
-      password: enc.encrypt(crypto, req.body.password),
-      // Set random link to emailurl
-      emailurl: uniqueLink,
-      showEmail: validShow,
-      username,
-      email
-    });
-    // Check if username or email taken by someone else
-    checkUserAndEmail(username, email)
-      .then(answer => {
-        // Save user to the session for 7 days.
-        req.session.user = username;
-        req.session.pass = enc.encrypt(crypto, req.body.password);
-        // Save object
-        user.save(err => {
-          if (err) throw err;
-          res.render("admin.njk", {
-            data: {
-              username,
-              name: req.body.name
-            }
+    const password = req.body.password;
+    const name = req.body.name;
+
+    if (!username || !email || !password || !name) {
+      res.redirect("index.njk", {
+        status: 7
+      });
+    } else {
+      const user = new User({
+        // Encrypt Password
+        password: enc.encrypt(password),
+        // Set random link to emailurl
+        emailurl: uniqueLink,
+        showEmail: validShow,
+        username,
+        email,
+        name
+      });
+      // Check if username or email taken by someone else
+      checkUserAndEmail(username, email)
+        .then(answer => {
+          // Save user to the session for 7 days.
+          req.session.user = username;
+          // Save object
+          user.save(err => {
+            if (err) throw err;
+            res.render("admin.njk", {
+              data: {
+                username,
+                name
+              }
+            });
+          });
+          // Send email for complete the register
+          // mail(email, uniqueLink);
+        })
+        .catch(e => {
+          res.render("index.njk", {
+            username,
+            email,
+            status: 1
           });
         });
-        // Send email for complete the register
-        // mail(nodemailer, email, uniqueLink);
-      })
-      .catch(e => {
-        res.render("index.njk", {
-          username,
-          email,
-          status: 1
-        });
-      });
+    }
   });
   // Check username using fetch in script/register.js
-  app.post("/checkuser", (req, res) => {
-    const username = req.body.username;
-    const email = req.body.email;
-    checkUserAndEmail(username, email)
+  app.post("/checkusername", (req, res) => {
+    const username = req.body.username.toLowerCase();
+
+    db.checkUsername(username)
       .then(answer => {
-        // Send true to the client
-        req.body.ok = true;
+        req.body.ok = false;
         res.json(req.body);
       })
       .catch(e => {
-        // Send false to the client
-        req.body.ok = false;
+        req.body.ok = true;
         res.json(req.body);
       });
   });
   // Check email using fetch in script/register.js
   app.post("/checkemail", (req, res) => {
-    const username = req.body.username;
     const email = req.body.email;
-    checkUserAndEmail(username, email)
+    db.checkBy("email", email)
       .then(answer => {
-        // Send true to the client
-        req.body.ok = true;
+        req.body.ok = false;
         res.json(req.body);
       })
       .catch(e => {
-        // Send false to the client
-        req.body.ok = false;
+        req.body.ok = true;
         res.json(req.body);
       });
   });
@@ -111,11 +112,10 @@ function posts(
     // Always make it lowercase ..
     const username = req.body.username.toLowerCase();
     // Check username and encryped password
-    ckeckUserAndPassword(username, enc.encrypt(crypto, req.body.password))
+    ckeckUserAndPassword(username, enc.encrypt(req.body.password))
       .then(answer => {
         // Save user to the sessino for 7 days
         req.session.user = username;
-        req.session.pass = enc.encrypt(crypto, req.body.password);
         res.redirect("/admin");
       })
       .catch(e => {
@@ -127,16 +127,26 @@ function posts(
   app.post("/setting", multerConfig.single("avatar"), (req, res) => {
     // Find it in DB
     const condition = {
-      username: req.session.user.toLowerCase(),
-      password: req.session.pass
+      username: req.session.user.toLowerCase()
     };
+    const username = req.body.username.toLowerCase();
+    const email = req.body.email.toLowerCase();
     // Change it
     const update = {
-      name: req.body.name,
-      username: req.body.username.toLowerCase(),
-      email: req.body.email.toLowerCase(),
       description: {}
     };
+    db.checkUsername(username)
+      .catch(e => {
+        update.username = username;
+        req.session.user = username;
+      });
+    db.checkBy("email", email)
+      .catch(e => {
+        update.email = email;
+      });
+    if (req.body.name) {
+      update.name = req.body.name;
+    }
     if (req.body.about) {
       update.description.about = req.body.about;
     }
@@ -167,15 +177,17 @@ function posts(
     User.find(condition, (err, result) => {
       if (err) throw err;
       if (!req.file) {
-        if (result[0].description.avatar) {
-          update.description.avatar = result[0].description.avatar;
+        if (result[0].description) {
+          if (result[0].description.avatar) {
+            update.description.avatar = result[0].description.avatar;
+          }
         }
       } else {
         const mime = req.file.mimetype;
         if (mime === "image/jpeg" || mime === "image/png") {
           const file = req.file.filename;
           update.description.avatar = file + 'a';
-          imageSize(sharp, file);
+          imageSize(file);
           // Delete the old one.
           if (result[0].description.avatar) {
             removeOldImage(result[0].description.avatar);
@@ -199,17 +211,21 @@ function posts(
   app.post("/changepass", (req, res) => {
     // Find it to the DB
     const condition = {
-      password: enc.encrypt(crypto, req.body.oldpassword),
+      password: enc.encrypt(req.body.oldpassword),
       username: req.session.user
     };
     // Change it
     const update = {
-      password: enc.encrypt(crypto, req.body.newpassword)
+      password: enc.encrypt(req.body.newpassword)
     };
     // Set in DB
     User.update(condition, update, (err, numAffected) => {
       // bring user to Admin page after updating setting
-      res.redirect("admin");
+      if (numAffected.nModified == 1) {
+        res.redirect("admin");
+      } else {
+        res.redirect("admin");
+      }
     });
   });
   // Remove session and direct to Login page
@@ -221,10 +237,9 @@ function posts(
     const wholeLink = req.headers.referer.split('/');
 
     const UTF = wholeLink[wholeLink.length - 1].toLowerCase();
-    const watcher = req.body.watcher.toLowerCase();
 
     let watcherID, UTFID;
-    db.checkUsername(watcher)
+    db.checkUsername(req.session.user)
       .then(answer => {
         watcherID = answer[0]._id;
       })
@@ -238,41 +253,42 @@ function posts(
       .catch(e => {
         console.error(e);
       });
-    // Save in DB
-    User.find({ username: UTF }, (err, tank) => {
-      if (err) throw err;
+    setTimeout(() => {
+      // Save in DB
+      User.find({ username: UTF }, (err, tank) => {
+        if (err) throw err;
 
-      let f = tank[0].follower;
-      let index = f.indexOf(watcherID);
-      if (index == -1) {
-        tank[0].follower.push(watcherID);
-        tank[0].save((err, updatedTank) => {
-          if (err) throw err;
-          req.body.fo = "followed";
-          res.json(req.body);
-          User.find({ username: watcher }, (err, tonk) => {
+        let f = tank[0].follower;
+        let index = f.indexOf(watcherID);
+        if (index == -1) {
+          tank[0].follower.push(watcherID);
+          tank[0].save((err, updatedTank) => {
             if (err) throw err;
-            tonk[0].following.push(UTFID);
-            tonk[0].save((err, updatedTank) => {
+            req.body.fo = "followed";
+            res.json(req.body);
+            User.find({ username: req.session.user }, (err, tonk) => {
               if (err) throw err;
+              tonk[0].following.push(UTFID);
+              tonk[0].save((err, updatedTank) => {
+                if (err) throw err;
+              });
             });
           });
-        });
-      } else {
-        req.body.fo = "followed";
-        res.json(req.body);
-      }
-    });
+        } else {
+          req.body.fo = "followed";
+          res.json(req.body);
+        }
+      });
+    }, 200);
   });
   app.post("/unfollow", (req, res) => {
     const wholeLink = req.headers.referer.split('/');
 
     const UTF = wholeLink[wholeLink.length - 1].toLowerCase();
-    const Watcher = req.body.watcher.toLowerCase();
 
     let watcherID, UTFID;
 
-    db.checkUsername(Watcher)
+    db.checkUsername(req.session.user)
       .then(answer => {
         watcherID = answer[0]._id;
       })
@@ -286,27 +302,29 @@ function posts(
       .catch(e => {
         console.error(e);
       });
-    User.find({ username: UTF }, (err, tank) => {
-      if (err) throw err;
-      let f = tank[0].follower;
-      let index = f.indexOf(watcherID);
-      f.splice(index, 1);
-      tank[0].save((err, updatedTank) => {
+    setTimeout(() => {
+      User.find({ username: UTF }, (err, tank) => {
         if (err) throw err;
+        let f = tank[0].follower;
+        let index = f.indexOf(watcherID);
+        f.splice(index, 1);
+        tank[0].save((err, updatedTank) => {
+          if (err) throw err;
+        });
       });
-    });
-    User.find({ username: Watcher }, (err, tank) => {
-      if (err) throw err;
-      // Find it in DB and then remove it
-      let f = tank[0].following;
-      let index = f.indexOf(UTFID);
-      f.splice(index, 1);
-      tank[0].save((err, updatedTank) => {
+      User.find({ username: req.session.user }, (err, tank) => {
         if (err) throw err;
-        req.body.fo = "unfollowed";
-        res.json(req.body);
+        // Find it in DB and then remove it
+        let f = tank[0].following;
+        let index = f.indexOf(UTFID);
+        f.splice(index, 1);
+        tank[0].save((err, updatedTank) => {
+          if (err) throw err;
+          req.body.fo = "unfollowed";
+          res.json(req.body);
+        });
       });
-    });
+    }, 200);
   });
   app.post("/delete", (req, res) => {
     // Find user
@@ -346,22 +364,31 @@ function posts(
     const now = Date.now();
     // Find the user who is going to create a post
     const username = req.body.username.toLowerCase();
-    // Save post in userpost directory
-    savePost(username, req.body.content, now.toString());
-    // Send something in to the client
-    // Save the post link, title and the date of that in the DB
-    User.find({ username }, (err, tank) => {
-      if (err) throw err;
-      const userSch = {
-        title: req.body.title,
-        time: now
-      };
-      tank[0].posts.push(userSch);
-      tank[0].save((err, updatedTank) => {
+    const content = req.body.content;
+    const title = req.body.title;
+    if (!username || !content || !title) {
+      res.json({ status: 0 });
+    } else {
+
+      const link = stringing.unique(40);
+      // Save post in userpost directory
+      savePost(username, content, link);
+      // Send something in to the client
+      // Save the post link, title and the date of that in the DB
+      User.find({ username }, (err, tank) => {
         if (err) throw err;
-        res.json(req.body);
+        const userSch = {
+          _id: link,
+          time: now,
+          title
+        };
+        tank[0].posts.push(userSch);
+        tank[0].save((err, updatedTank) => {
+          if (err) throw err;
+          res.json(req.body);
+        });
       });
-    });
+    }
   });
   app.post("/allposts", (req, res) => {
     User.find({ username: req.body.username.toLowerCase() }, (err, result) => {
@@ -444,7 +471,7 @@ function posts(
         });
       } else {
         const unique = stringing.unique(40) + '0' + result[0].username;
-        mail(nodemailer, result[0].email, unique);
+        mail(result[0].email, unique);
         result[0].forgot = unique;
         result[0].save((err, updated) => {
           res.render("index.njk", {
@@ -473,7 +500,7 @@ function posts(
             });
           } else {
             if (result[0].forgot === enq) {
-              const p = enc.encrypt(crypto, pass);
+              const p = enc.encrypt(pass);
               result[0].password = p;
               result[0].forgot = null;
               result[0].save((err, updated) => {
@@ -498,3 +525,6 @@ function posts(
 }
 
 module.exports = posts;
+// priority, compel, bury, coffin, spot, dump, willing
+// sire, fleas, dimmer, council, behold, buzz, clue, stake,
+// tempt, surreal, bound, flag, muscle, hall, phsyco

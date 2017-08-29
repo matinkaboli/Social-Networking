@@ -7,16 +7,17 @@ const em = document.getElementById("em");
 
 username.addEventListener("input", () => {
   const configuration = {
+    credentials: "same-origin",
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json"
     },
     body: JSON.stringify({
-      username: user
+      username: username.value
     })
   };
-  checkUser("/checkuser", configuration);
+  checkUser("/checkusername", configuration);
 });
 
 email.addEventListener("input", () => {
@@ -34,43 +35,33 @@ email.addEventListener("input", () => {
 });
 
 function checkUser(url, config) {
-  fetch(url, config).then(checkStatus).then(res => res.json()).then(data => {
+  fetch(url, config)
+  .then(checkStatus)
+  .then(res => res.json())
+  .then(data => {
     if (data.ok) {
-      if (/\ /.test(username.value)) {
-        username.style.backgroundColor = "red";
-        form.addEventListener("click", prevent);
-      } else {
-        username.style.backgroundColor = "green";
-        form.removeEventListener("click", prevent);
-      }
+      username.style.backgroundColor = "green";
     } else {
-      if (username.value === us.innerHTML) {
+      if (username.value == oldUser) {
         username.style.backgroundColor = "green";
-        form.removeEventListener("click", prevent);
       } else {
         username.style.backgroundColor = "red";
-        form.addEventListener("click", prevent);
       }
     }
   });
 }
 function checkEmail(url, config) {
-  fetch(url, config).then(checkStatus).then(res => res.json()).then(data => {
+  fetch(url, config)
+    .then(checkStatus)
+    .then(res => res.json())
+    .then(data => {
     if (data.ok) {
-      if (/\ /.test(email.value)) {
-        email.style.backgroundColor = "red";
-        form.addEventListener("click", prevent);
-      } else {
-        email.style.backgroundColor = "green";
-        form.removeEventListener("click", prevent);
-      }
+      email.style.backgroundColor = "green";
     } else {
-      if (email.value === em.innerHTML) {
+      if (email.value === oldEmail) {
         email.style.backgroundColor = "green";
-        form.removeEventListener("click", prevent);
       } else {
         email.style.backgroundColor = "red";
-        form.addEventListener("click", prevent);
       }
     }
   });
@@ -83,9 +74,6 @@ function checkStatus(res) {
     error.res = res;
     throw error;
   }
-}
-function prevent(e) {
-  e.preventDefault();
 }
 /* function getInfo() {
   const file = document.getElementById("ftu");

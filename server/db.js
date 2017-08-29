@@ -17,6 +17,7 @@ db.on("error", console.error.bind(console, "Connection failed."));
 
 // Create schema for every post that user create
 const postSchema = new Schema({
+  _id: String,
   title: String,
   time: Number
 }, { _id: false });
@@ -38,7 +39,7 @@ const userSchema = new Schema({
     trim: true
   },
   password: { type: String, required: true },
-  email: { type: String, required: true, trim: true },
+  email: { type: String, required: true, trim: true, unique: true },
   emailurl: { type: String },
   created: Date,
   showEmail: { type: Boolean },

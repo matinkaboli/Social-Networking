@@ -11,7 +11,7 @@ shit.User.find({ username: "matinkaboli" }, (err, aff) => {
   console.log(doc);
 }) */
 
-/*shit.User.find({  }).remove((err, aff) => {
+/* shit.User.find({  }).remove((err, aff) => {
   if (err) throw err;
   console.log(aff)
 }); */

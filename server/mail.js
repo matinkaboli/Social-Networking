@@ -1,4 +1,6 @@
-function sendEm(nodemailer, to, text) {
+const nodemailer = require("nodemailer");
+
+function sendEm(to, text) {
   let transport = nodemailer.createTransport({
     service: "gmail",
     auth: {

@@ -14,7 +14,7 @@ username.addEventListener("input", () => {
       username: username.value.toLowerCase()
     })
   };
-  checkUser("/checkuser", configuration);
+  checkUser("/checkusername", configuration);
 });
 // With every letter that user types.
 email.addEventListener("blur", () => {

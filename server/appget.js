@@ -1,3 +1,6 @@
+// Matin modules
+const moment = require("moment");
+// Import Files
 const showData = require("./showdata");
 
 function gets(app, db) {
@@ -32,7 +35,7 @@ function gets(app, db) {
   app.get("/setting", auth, (req, res) => {
     // Check db width username in the session.
     db
-      .checkUsername(req.session.user.toLowerCase(), req.session.pass)
+      .checkUsername(req.session.user.toLowerCase())
       .then(answer => {
         res.render("setting.njk", {
           data: answer[0]
@@ -46,8 +49,7 @@ function gets(app, db) {
   app.get("/admin", auth, (req, res) => {
     // Find the user
     const condition = {
-      username: req.session.user,
-      password: req.session.pass
+      username: req.session.user
     };
     db.User.find(condition, (err, answer) => {
       const postAddress = "/home/matin/Documents/facebook/userpost/";
@@ -175,10 +177,10 @@ function gets(app, db) {
                       const dir =
                       "/home/matin/Documents/projects/facebook/userpost/";
 
-                      showData(`${dir}${result[0].username}/${post.time}`)
+                      showData(`${dir}${result[0].username}/${post._id}`)
                         .then(data => {
                           const obj = {
-                            time: new Date(post.time),
+                            time: moment(post.time).fromNow(),
                             title: post.title,
                             content: data
                           }
@@ -245,7 +247,7 @@ function gets(app, db) {
         res.send("Username Does not exist.");
       } else {
         function findAddress(element) {
-          return element.address == ad;
+          return element._id == ad;
         }
         let find = tank[0].posts.find(findAddress);
         if (find) {
@@ -253,12 +255,12 @@ function gets(app, db) {
           "/home/matin/Documents/projects/facebook/userpost/";
           userposts += us;
           userposts += '/';
-          userposts += find.address;
+          userposts += find._id;
           showData(userposts)
             .then(result => {
               res.render("userpost.njk", {
                 title: find.title,
-                time: find.time,
+                time: moment(find.time).fromNow(),
                 username: us,
                 data: result
               });

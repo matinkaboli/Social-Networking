@@ -5,6 +5,7 @@ const countFollowing = document.getElementById("count-following");
 fol.addEventListener("click", () => {
   const configuration = {
     method: "POST",
+    credentials: "same-origin",
     headers: {
       "Content-Type": "application/json",
       "Accept": "application/json"

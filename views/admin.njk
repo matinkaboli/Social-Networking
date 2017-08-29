@@ -3,12 +3,12 @@
   <head>
     <meta charset="utf-8">
     <title>{{ data.name }}</title>
-    <link rel="stylesheet" href="styles/admin.css">
+    <link rel="stylesheet" href="/styles/admin.css">
   </head>
   <body>
     <nav>
       {% if data.description.avatar %}
-      <img src="{{ 'profile/' + data.description.avatar }}">
+      <img src="{{ '/profile/' + data.description.avatar }}">
       {% else %}
       <img src="default/man.jpg">
       {% endif %}
@@ -35,6 +35,6 @@
     <script>
       const username = "{{ data.username }}";
     </script>
-    <script src="script/sendpost.js"></script>
+    <script src="/script/sendpost.js"></script>
   </body>
 </html>
