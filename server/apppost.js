@@ -126,24 +126,14 @@ function posts(
   });
   app.post("/setting", multerConfig.single("avatar"), (req, res) => {
     // Find it in DB
-    const condition = {
-      username: req.session.user.toLowerCase()
-    };
+    const userSession = req.session.user.toLowerCase();
+
     const username = req.body.username.toLowerCase();
     const email = req.body.email.toLowerCase();
     // Change it
     const update = {
       description: {}
     };
-    db.checkUsername(username)
-      .catch(e => {
-        update.username = username;
-        req.session.user = username;
-      });
-    db.checkBy("email", email)
-      .catch(e => {
-        update.email = email;
-      });
     if (req.body.name) {
       update.name = req.body.name;
     }
@@ -173,39 +163,58 @@ function posts(
     } else {
       update.showEmail = false;
     }
-    // Check If user changed his avatar
-    User.find(condition, (err, result) => {
-      if (err) throw err;
-      if (!req.file) {
-        if (result[0].description) {
-          if (result[0].description.avatar) {
-            update.description.avatar = result[0].description.avatar;
-          }
-        }
-      } else {
-        const mime = req.file.mimetype;
-        if (mime === "image/jpeg" || mime === "image/png") {
-          const file = req.file.filename;
-          update.description.avatar = file + 'a';
-          imageSize(file);
-          // Delete the old one.
-          if (result[0].description.avatar) {
-            removeOldImage(result[0].description.avatar);
-          }
-        } else {
-          // Delete this shit.
-          update.description.avatar = result[0].description.avatar;
-          removeOldImage(req.file.filename);
-        }
-      }
-    });
-    // Set in DB
-    setTimeout(() => {
-      User.update(condition, update, (err, numAffected) => {
+    async function works() {
+      let CU = db.checkUsername(username)
+        .catch(e => {
+          update.username = username;
+          req.session.user = username;
+        });
+      let UE = db.checkBy("email", email)
+        .catch(e => {
+          update.email = email;
+        });
+      let changeIMG = db.checkUsername(userSession)
+        .then(result => {
+          // Check If user changed his avatar
+            if (!req.file) {
+              if (result[0].description) {
+                if (result[0].description.avatar) {
+                  update.description.avatar = result[0].description.avatar;
+                }
+              }
+            } else {
+              const mime = req.file.mimetype;
+              if (mime === "image/jpeg" || mime === "image/png") {
+                const file = req.file.filename;
+                update.description.avatar = file + 'a';
+                imageSize(file);
+                // Delete the old one.
+                if (result[0].description.avatar) {
+                  removeOldImage(result[0].description.avatar);
+                }
+              } else {
+                // Delete this shit.
+                update.description.avatar = result[0].description.avatar;
+                removeOldImage(req.file.filename);
+              }
+            }
+        })
+        .catch(e => {
+          console.error(e);
+        });
+      let CHECKUSERNAME = await CU;
+      CHECKUSERNAME;
+      let CHECKEMAIL = await UE;
+      CHECKEMAIL;
+      let CHECKIMAGE = await changeIMG;
+      CHECKIMAGE;
+      // Set in DB
+      User.update({"username": userSession}, update, (err, numAffected) => {
         // Bring user to Admin page after updating setting
         res.redirect("/admin");
       });
-    }, 200);
+    }
+    works();
   });
   // Change password in Setting page
   app.post("/changepass", (req, res) => {
@@ -239,21 +248,26 @@ function posts(
     const UTF = wholeLink[wholeLink.length - 1].toLowerCase();
 
     let watcherID, UTFID;
-    db.checkUsername(req.session.user)
-      .then(answer => {
-        watcherID = answer[0]._id;
-      })
-      .catch(e => {
-        console.error(e);
-      });
-    db.checkUsername(UTF)
-      .then(answer => {
-        UTFID = answer[0]._id;
-      })
-      .catch(e => {
-        console.error(e);
-      });
-    setTimeout(() => {
+
+    async function works() {
+      let CU = db.checkUsername(req.session.user.toLowerCase())
+        .then(answer => {
+          watcherID = answer[0]._id;
+        })
+        .catch(e => {
+          console.error(e);
+        });
+      let CC = db.checkUsername(UTF)
+        .then(answer => {
+          UTFID = answer[0]._id;
+        })
+        .catch(e => {
+          console.error(e);
+        });
+      let CHECKUSERNAME1 = await CU;
+      CHECKUSERNAME1;
+      let CHECKUSERNAME2 = await CC;
+      CHECKUSERNAME2;
       // Save in DB
       User.find({ username: UTF }, (err, tank) => {
         if (err) throw err;
@@ -266,7 +280,7 @@ function posts(
             if (err) throw err;
             req.body.fo = "followed";
             res.json(req.body);
-            User.find({ username: req.session.user }, (err, tonk) => {
+            User.find({ username: req.session.user.toLowerCase() }, (err, tonk) => {
               if (err) throw err;
               tonk[0].following.push(UTFID);
               tonk[0].save((err, updatedTank) => {
@@ -279,7 +293,8 @@ function posts(
           res.json(req.body);
         }
       });
-    }, 200);
+    }
+    works();
   });
   app.post("/unfollow", (req, res) => {
     const wholeLink = req.headers.referer.split('/');
@@ -288,21 +303,25 @@ function posts(
 
     let watcherID, UTFID;
 
-    db.checkUsername(req.session.user)
-      .then(answer => {
-        watcherID = answer[0]._id;
-      })
-      .catch(e => {
-        console.error(e);
-      });
-    db.checkUsername(UTF)
-      .then(answer => {
-        UTFID = answer[0]._id;
-      })
-      .catch(e => {
-        console.error(e);
-      });
-    setTimeout(() => {
+    async function works() {
+      let CU = db.checkUsername(req.session.user)
+        .then(answer => {
+          watcherID = answer[0]._id;
+        })
+        .catch(e => {
+          console.error(e);
+        });
+      let CC = db.checkUsername(UTF)
+        .then(answer => {
+          UTFID = answer[0]._id;
+        })
+        .catch(e => {
+          console.error(e);
+        });
+      let CHECKUSERNAME1 = await CU;
+      CHECKUSERNAME1;
+      let CHECKUSERNAME2 = await CC;
+      CHECKUSERNAME2;
       User.find({ username: UTF }, (err, tank) => {
         if (err) throw err;
         let f = tank[0].follower;
@@ -323,8 +342,8 @@ function posts(
           req.body.fo = "unfollowed";
           res.json(req.body);
         });
-      });
-    }, 200);
+      });      
+    }
   });
   app.post("/delete", (req, res) => {
     // Find user

@@ -11,6 +11,7 @@
     "express": "^4.15.3",
     "express-device": "^0.4.2",
     "express-session": "^1.15.4",
+    "flash": "^1.1.0",
     "helmet": "^3.8.1",
     "moment": "^2.18.1",
     "mongodb": "^2.2.30",
