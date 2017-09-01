@@ -1,7 +1,6 @@
 // Main modules
 const express = require("express");
 const session = require("express-session");
-const multer = require("multer");
 // Import files
 const db = require("./db");
 const configs = require("./configure");
@@ -15,15 +14,7 @@ configs(app, express, session);
 // GET Routing
 gets(app, db);
 // POST routing
-posts(
-  app,
-  session,
-  multer,
-  db,
-  db.checkUserAndEmail,
-  db.ckeckUserAndPassword,
-  db.User
-);
+posts(app, session, db);
 // Check token for account validation
 token(app, db);
 // 404 status
@@ -32,7 +23,7 @@ app.use((req, res, next) => {
     url: req.originalUrl
   });
 });
-// Listen to 8080 port
-app.listen(8080, () => {
-  console.log("The server is running on port 8080");
+// Listen to 80 port
+app.listen(80, () => {
+  console.log("The server is running now.");
 });

@@ -3,7 +3,7 @@ const moment = require("moment");
 // Import Files
 const showData = require("./showdata");
 
-function gets(app, db) {
+const gets = (app, db) => {
   // Auth users with session
   const auth = (req, res, next) => {
     if (req.session && req.session.user) {
@@ -17,7 +17,7 @@ function gets(app, db) {
   // Main page
   app.get("/", (req, res) => {
     if (req.session && req.session.user) {
-      res.redirect("/admin");
+      res.redirect("/you");
     } else {
       res.render("index.njk");
     }
@@ -34,8 +34,7 @@ function gets(app, db) {
   // Setting page for complete account options
   app.get("/setting", auth, (req, res) => {
     // Check db width username in the session.
-    db
-      .checkUsername(req.session.user.toLowerCase())
+    db.checkUsername(req.session.user.toLowerCase())
       .then(answer => {
         res.render("setting.njk", {
           data: answer[0]
@@ -46,7 +45,7 @@ function gets(app, db) {
         res.send("Error...");
       });
   });
-  app.get("/admin", auth, (req, res) => {
+  app.get("/you", auth, (req, res) => {
     // Find the user
     const condition = {
       username: req.session.user
@@ -60,8 +59,6 @@ function gets(app, db) {
   });
   app.get("/user/:username", (req, res) => {
     if (req.query.tab) {
-
-
       const username = req.params.username.toLowerCase();
       db.User.find({ username }, (err, tonk) => {
         if (JSON.stringify(tonk) != "[]") {
@@ -76,9 +73,7 @@ function gets(app, db) {
             for (; begin < end; begin++) {
               list.push(tonk[0].following[begin]);
             }
-            function checkElements(element) {
-              return element == undefined;
-            }
+            const checkElements = element => element === undefined;
             let some = list.some(checkElements);
 
             if (list.every(checkElements)) {
@@ -109,9 +104,7 @@ function gets(app, db) {
             for (; begin < end; begin++) {
               list.push(tonk[0].follower[begin]);
             }
-            function checkElements(element) {
-              return element == undefined;
-            }
+            const checkElements = element => element === undefined;
             let some = list.some(checkElements);
             if (list.every(checkElements)) {
               res.render("listuser.njk", {
@@ -163,12 +156,9 @@ function gets(app, db) {
                 userSesID = answer[0]._id;
               })
               .then(() => {
-                function hasFollowed(username) {
-                  return username == userSesID;
-                }
+                const hasFollowed = username => username === userSesID;
+
                 finder = isFollowed.some(hasFollowed);
-
-
                 const list = [];
                 function* getData() {
                   let len = result[0].posts;
@@ -179,10 +169,20 @@ function gets(app, db) {
 
                       showData(`${dir}${result[0].username}/${post._id}`)
                         .then(data => {
+                          const findA = el => el === userSesID;
+                          const isLiked = post.likes.some(findA);
                           const obj = {
                             time: moment(post.time).fromNow(),
                             title: post.title,
-                            content: data
+                            content: data,
+                            _id: post._id,
+                            likes: post.likes,
+                            comments: post.comments,
+                          }
+                          if (isLiked) {
+                            obj.like = true;
+                          } else {
+                            obj.like = false;
                           }
                           list.push(obj);
                           resolve();
@@ -246,9 +246,8 @@ function gets(app, db) {
       if (JSON.stringify(tank) == "[]") {
         res.send("Username Does not exist.");
       } else {
-        function findAddress(element) {
-          return element._id == ad;
-        }
+        const findAddress = element => element._id === ad;
+
         let find = tank[0].posts.find(findAddress);
         if (find) {
           let userposts =

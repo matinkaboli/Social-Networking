@@ -1,4 +1,4 @@
-function removeFollowings(user, db) {
+const removeFollowings = (user, db) => {
   if (user.follower.length > 0) {
     for (let i = 0; i < user.follower.length; i++) {
       db.find({ _id: user.follower[i] }, (err, tank) => {
@@ -14,7 +14,7 @@ function removeFollowings(user, db) {
     }
   }
 }
-function removeFollowers(user, db) {
+const removeFollowers = (user, db) => {
   if (user.following.length > 0) {
     for (let i = 0; i < user.following.length; i++) {
       db.find({ _id: user.following[i] }, (err, tank) => {

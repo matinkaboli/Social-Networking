@@ -3,26 +3,30 @@
   <head>
     <meta charset="utf-8">
     <title>{{ data.name }}</title>
+    <link rel="stylesheet" href="/styles/post.css">
   </head>
   <body>
     {% include "findimage.njk" %}
     <br><br>
     {% include "follow.njk" %}
     {% if list.length != 0 %}
-    <table border="1">
-      <tr>
-        <th>Title</th>
-        <th>Time</th>
-        <th>Content</th>
-      </tr>
+    <div id="posts">
     {% for item in list %}
-    <tr>
-      <td> {{ item.title }}</td>
-      <td> {{ item.time }}</td>
-      <td> {{ item.content }}</td>
-    </tr>
+    <div class="onepost">
+      <p id="title">Title: {{ item.title }}</p>
+      <p id="time">Time: {{ item.time }}</p>
+      <p id="content">Content: {{ item.content }}</p>
+      <p>Likes: <span>{{ item.likes | length }}</span></p>
+      <p style="display: none;">{{ item._id }}</p>
+      {% if item.like %}
+      <input type="submit" value="DISLIKE">
+      {% else %}
+      <input type="submit" value="LIKE">
+      {% endif %}
+    </div>
     {% endfor %}
-    </table>
+    </div>
     {% endif %}
+    <script src="/script/posts.js"></script>
   </body>
 </html>

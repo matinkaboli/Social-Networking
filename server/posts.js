@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-function savePost(username, content, uniqueStr) {
+const savePost = (username, content, uniqueStr) => {
   const dest = `/home/matin/Documents/projects/facebook/userpost/`;
   const conf = {
     flag: "a+"

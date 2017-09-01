@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-function removeAllFiles(address) {
+const removeAllFiles = address => {
   const allFiles = fs.readdirSync(address);
   for (var i = 0; i < allFiles.length; i++) {
     fs.unlink(address + allFiles[i], err => {
@@ -12,13 +12,13 @@ function removeAllFiles(address) {
   });
 }
 
-function removeUserData(username) {
+const removeUserData = username => {
   const address = `/home/matin/Documents/projects/facebook/userpost/${username}/`;
   if (fs.existsSync(address)) {
     removeAllFiles(address);
   }
 }
-function removeOldImage(address) {
+const removeOldImage = address => {
   const dir = "/home/matin/Documents/projects/facebook/public/profile/";
   const full  = `${dir}${address}`;
   fs.unlink(full, err => {

@@ -14,12 +14,19 @@ let Schema = mongoose.Schema;
 autoInc.initialize(connection);
 // If error happened
 db.on("error", console.error.bind(console, "Connection failed."));
-
+// Create schema for comments for posts
+const commentSchema = new Schema({
+  user: Number,
+  time: Number,
+  text: String
+});
 // Create schema for every post that user create
 const postSchema = new Schema({
   _id: String,
   title: String,
-  time: Number
+  time: Number,
+  likes: [Number],
+  comments: [commentSchema]
 }, { _id: false });
 // What happened lately?
 /*const recent = new Schema({
@@ -51,6 +58,7 @@ const userSchema = new Schema({
     avatar: { type: String },
     case: { type: Boolean }
   },
+  likes: Number,
   follower: [Number],
   following: [Number],
   posts: [postSchema],
@@ -71,7 +79,7 @@ userSchema.plugin(autoInc.plugin, "User");
 
 const User = mongoose.model("User", userSchema);
 // Check username and email in DB (using promise)
-function checkUserAndEmail(username, email) {
+const checkUserAndEmail = (username, email) => {
   return new Promise((resolve, reject) => {
     User.find({ $or: [{ username }, { email }] }, (err, result) => {
       if (JSON.stringify(result) == "[]") resolve("Username is free.");
@@ -80,7 +88,7 @@ function checkUserAndEmail(username, email) {
   });
 }
 // Check username and password in DB
-function ckeckUserAndPassword(username, password) {
+const ckeckUserAndPassword = (username, password) => {
   return new Promise((resolve, reject) => {
     User.find({ $and: [{ username }, { password }] }, (err, result) => {
       if (JSON.stringify(result) == "[]") reject("Damn it...");
@@ -89,7 +97,7 @@ function ckeckUserAndPassword(username, password) {
   });
 }
 // Check token
-function checkToken(url) {
+const checkToken = url => {
   return new Promise((resolve, reject) => {
     User.find({ emailurl: url }, (err, result) => {
       if (JSON.stringify(result) == "[]") reject("404 not found.");
@@ -103,7 +111,7 @@ function checkToken(url) {
   });
 }
 // Does username exist?
-function checkUsername(username) {
+const checkUsername = username => {
   return new Promise((resolve, reject) => {
     User.find({ username }, (err, result) => {
       if (err) throw err;
@@ -113,7 +121,7 @@ function checkUsername(username) {
   });
 }
 
-function checkBy(key, value) {
+const checkBy = (key, value) => {
   return new Promise((resolve, reject) => {
     User.find({ key: value }, (err, result) => {
       if (err) throw err;

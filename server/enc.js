@@ -1,14 +1,14 @@
 const crypto = require("crypto");
 // Encrypt password
-function encrypt(text) {
-  let cipher = crypto.createCipher("aes-256-ctr", "peshkelmachalaq");
+const encrypt = text => {
+  const cipher = crypto.createCipher("aes-256-ctr", "peshkelmachalaq");
   let crypted = cipher.update(text, "utf8", "hex");
   crypted += cipher.final("hex");
   return crypted;
 }
 // Decrypt password
-function decrypt(text) {
-  let decipher = crypto.createDecipher("aes-256-ctr", "peshkelmachalaq");
+const decrypt = text => {
+  const decipher = crypto.createDecipher("aes-256-ctr", "peshkelmachalaq");
   let dec = decipher.update(text, "hex", "utf8");
   dec += decipher.final("utf8");
   return dec;

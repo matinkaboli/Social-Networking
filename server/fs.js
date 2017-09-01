@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-function removeFile(filename) {
+const removeFile = filename => {
   fs.unlink(filename, err => {
     if (err) throw err;
   });
