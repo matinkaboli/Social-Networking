@@ -6,6 +6,7 @@ const uglify = require('gulp-uglify-es').default;
 const pump = require('pump');
 
 const config = require("./config.json");
+
 gulp.task("default", ["watch"]);
 
 gulp.task("miniCSS", () => {
@@ -18,10 +19,15 @@ gulp.task("miniHTML", () => {
     .pipe(htmlmin({ collapseWhitespace: true }))
     .pipe(gulp.dest("views"));
 });
-gulp.task("dev:replace", () => {
+gulp.task("dev1", () => {
   return gulp.src("./view/*.njk")
     .pipe(replace(/rootpath/g, config.website))
     .pipe(gulp.dest("./view"));
+});
+gulp.task("dev2", () => {
+  return gulp.src("./server/*.js")
+    .pipe(replace(/rootpath/g, config.website))
+    .pipe(gulp.dest("./server"));
 });
 gulp.task("miniJS", ["miniCSS", "miniHTML", "dev:replace"], () => {
   return gulp.src("./sc/*.js")
