@@ -54,7 +54,7 @@ const gets = (app, db) => {
         username: req.session.user
       };
       db.User.find(condition, (err, answer) => {
-        const postAddress = "maindir/userpost/";
+        const postAddress = "/home/matin/Documents/projects/facebook/userpost/";
         res.render("admin.njk", {
           data: answer[0]
         });
@@ -176,7 +176,7 @@ const gets = (app, db) => {
                   for (const post of firstPosts) {
                     yield new Promise(resolve => {
                       const dir =
-                      "maindir/userpost/";
+                      "/home/matin/Documents/projects/facebook/userpost/";
                       showData(`${dir}${result[0]._id}/${post._id}`)
                         .then(data => {
                           const findA = el => el === userSesID;
@@ -263,7 +263,7 @@ const gets = (app, db) => {
             res.send("Not found.");
           } else {
             let userposts =
-            "maindir/userpost/";
+            "/home/matin/Documents/projects/facebook/userpost/";
             userposts += tank[0]._id;
             userposts += '/';
             userposts += resultPost[0]._id;

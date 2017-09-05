@@ -7,7 +7,7 @@ const saveMessage = (name, email, text) => {
 Email: ${email}
 text: ${text}`;
   const gen = stringing.unique(30);
-  const dest = `maindir/messages/${gen}.txt`;
+  const dest = `/home/matin/Documents/projects/facebook/messages/${gen}.txt`;
   fs.writeFile(dest, msg, err => {
     if (err) throw err;
   });

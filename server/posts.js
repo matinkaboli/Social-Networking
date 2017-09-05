@@ -1,7 +1,7 @@
 const fs = require("fs");
 
 const savePost = (id, content, uniqueStr) => {
-  const dest = `maindir/userpost/`;
+  const dest = `/home/matin/Documents/projects/facebook/userpost/`;
   const conf = {
     flag: "a+"
   };

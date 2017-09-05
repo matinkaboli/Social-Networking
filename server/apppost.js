@@ -363,7 +363,7 @@ const posts = (app, session, db) => {
       // Find his avatar (it he has one)
       if (result[0].description.avatar) {
         const address =
-          "maindir/public/profile/";
+          "/home/matin/Documents/projects/facebook/public/profile/";
           // Remove that file!
         removeFile(address + result[0].description.avatar);
       }
@@ -444,7 +444,7 @@ const posts = (app, session, db) => {
     const query = db.User.find(condition);
     query.then(doc => {
       const address =
-        "maindir/public/profile/";
+        "/home/matin/Documents/projects/facebook/public/profile/";
         // Remove that file!
       removeFile(address + doc[0].description.avatar);
       doc[0].description.avatar = undefined;
