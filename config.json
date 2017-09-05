@@ -1,4 +1,5 @@
 {
   "title": "Facebook",
-  "website": "http://localhost"
+  "website": "http://localhost",
+  "dir": "/home/matin/Documents/projects/facebook"
 }

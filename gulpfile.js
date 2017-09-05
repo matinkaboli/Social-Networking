@@ -19,17 +19,22 @@ gulp.task("miniHTML", () => {
     .pipe(htmlmin({ collapseWhitespace: true }))
     .pipe(gulp.dest("views"));
 });
-gulp.task("dev1", () => {
+gulp.task("rep1", () => {
   return gulp.src("./view/*.njk")
     .pipe(replace(/rootpath/g, config.website))
     .pipe(gulp.dest("./view"));
 });
-gulp.task("dev2", () => {
+gulp.task("rep2", () => {
   return gulp.src("./server/*.js")
     .pipe(replace(/rootpath/g, config.website))
     .pipe(gulp.dest("./server"));
 });
-gulp.task("miniJS", ["miniCSS", "miniHTML", "dev:replace"], () => {
+gulp.task("rep3", () => {
+  return gulp.src("./server/*.js")
+    .pipe(replace(/maindir/g, config.dir))
+    .pipe(gulp.dest("./server"));
+});
+gulp.task("miniJS", ["miniCSS", "miniHTML", "rep1", "rep2", "rep3"], () => {
   return gulp.src("./sc/*.js")
     .pipe(uglify())
     .pipe(gulp.dest("./public/script"));

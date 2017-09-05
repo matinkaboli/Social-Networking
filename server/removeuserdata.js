@@ -13,13 +13,13 @@ const removeAllFiles = address => {
 }
 
 const removeUserData = id => {
-  const address = `/home/matin/Documents/projects/facebook/userpost/${id}/`;
+  const address = `maindir/userpost/${id}/`;
   if (fs.existsSync(address)) {
     removeAllFiles(address);
   }
 }
 const removeOldImage = address => {
-  const dir = "/home/matin/Documents/projects/facebook/public/profile/";
+  const dir = "maindir/public/profile/";
   const full  = `${dir}${address}`;
   fs.unlink(full, err => {
     if (err) throw err;
