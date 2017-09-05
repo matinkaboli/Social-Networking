@@ -25,7 +25,10 @@
     "sweetalert": "^1.1.3"
   },
   "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-preset-env": "^1.6.0",
     "gulp": "^3.9.1",
+    "gulp-babel": "^7.0.0",
     "gulp-clean-css": "^3.8.0",
     "gulp-htmlmin": "^3.0.0",
     "gulp-js-minify": "0.0.3",
