@@ -1,0 +1,29 @@
+<form>
+  <input type="submit" name="tab" value="following">
+  <span id="count-following">{{ data.following | length }}</span>
+  <input type="submit" name="tab" value="follower">
+  <span id="count-follower">{{ data.follower | length }}</span><br>
+  <input type="hidden" name="page" value="1">
+</form>
+
+{% if self == url %}
+<p>Yourself</p>
+<script>
+  const username = "{{ data.username }}";
+  const watcher = "{{ self }}";
+</script>
+{% elif isFollowed %}
+<input type="submit" id="fol" value="UNFOLLOW">
+<script>
+  const username = "{{ data.username }}";
+  const watcher = "{{ self }}";
+</script>
+<script src="../script/follow.js"></script>
+{% else %}
+<input type="submit" id="fol" value="FOLLOW">
+<script>
+  const username = "{{ data.username }}";
+  const watcher = "{{ self }}";
+</script>
+<script src="/script/follow.js"></script>
+{% endif %}

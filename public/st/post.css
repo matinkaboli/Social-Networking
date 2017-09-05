@@ -1,0 +1,9 @@
+div#posts {
+  width: 500px;
+  height: auto;
+  padding: 10px;
+  margin: 10px;
+}
+div.onepost {
+  border-bottom: 1px solid #ddd;
+}

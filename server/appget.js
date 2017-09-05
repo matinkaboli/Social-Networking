@@ -46,16 +46,20 @@ const gets = (app, db) => {
       });
   });
   app.get("/you", auth, (req, res) => {
-    // Find the user
-    const condition = {
-      username: req.session.user
-    };
-    db.User.find(condition, (err, answer) => {
-      const postAddress = "/home/matin/Documents/facebook/userpost/";
-      res.render("admin.njk", {
-        data: answer[0]
+    if (req.query.q) {
+      res.send(req.query.q);
+    } else {
+      // Find the user
+      const condition = {
+        username: req.session.user
+      };
+      db.User.find(condition, (err, answer) => {
+        const postAddress = "/home/matin/Documents/facebook/userpost/";
+        res.render("admin.njk", {
+          data: answer[0]
+        });
       });
-    });
+    }
   });
   app.get("/user/:username", (req, res) => {
     if (req.query.tab) {
@@ -157,17 +161,23 @@ const gets = (app, db) => {
               })
               .then(() => {
                 const hasFollowed = username => username === userSesID;
-
                 finder = isFollowed.some(hasFollowed);
                 const list = [];
+                const query = db.Post.find({
+                  user: result[0]._id
+                })
+                  .limit(10)
+                  .sort({ time: 1});
+
+                const pro = query.exec();
+
+                pro.then(firstPosts => {
                 function* getData() {
-                  let len = result[0].posts;
-                  for (const post of result[0].posts) {
+                  for (const post of firstPosts) {
                     yield new Promise(resolve => {
                       const dir =
                       "/home/matin/Documents/projects/facebook/userpost/";
-
-                      showData(`${dir}${result[0].username}/${post._id}`)
+                      showData(`${dir}${result[0]._id}/${post._id}`)
                         .then(data => {
                           const findA = el => el === userSesID;
                           const isLiked = post.likes.some(findA);
@@ -177,8 +187,8 @@ const gets = (app, db) => {
                             content: data,
                             _id: post._id,
                             likes: post.likes,
-                            comments: post.comments,
-                          }
+                            //comments: post.comments,
+                          };
                           if (isLiked) {
                             obj.like = true;
                           } else {
@@ -188,13 +198,12 @@ const gets = (app, db) => {
                           resolve();
                         })
                         .catch(e => {
-                          console.log(e);
+                          console.error(e);
                         });
-                    });
-                  }
+                      });
+                    }
                 }
                 let iter = getData();
-
                 (function loop() {
                   const next = iter.next();
 
@@ -203,18 +212,20 @@ const gets = (app, db) => {
                     if (!finder) {
                       res.render("userin.njk", {
                         data: result[0],
+                        created: new Date(result[0].created),
                         self: req.session.user,
-                        list: list.reverse(),
                         isFollowed: false,
+                        list,
                         url: username
                       });
                     // If you did
                     } else {
                       res.render("userin.njk", {
                         data: result[0],
+                        created: new Date(result[0].created),
                         self: req.session.user,
-                        list: list.reverse(),
                         isFollowed: true,
+                        list,
                         url: username
                       });
                     }
@@ -222,13 +233,14 @@ const gets = (app, db) => {
                   }
                   next.value.then(loop);
                 }());
-
+                });
               })
               .catch(e => {
                 console.error(e);
               });
           } else {
             res.render("userout.njk", {
+              created: new Date(result[0].created),
               data: result[0]
             });
           }
@@ -246,32 +258,31 @@ const gets = (app, db) => {
       if (JSON.stringify(tank) == "[]") {
         res.send("Username Does not exist.");
       } else {
-        const findAddress = element => element._id === ad;
-
-        let find = tank[0].posts.find(findAddress);
-        if (find) {
-          let userposts =
-          "/home/matin/Documents/projects/facebook/userpost/";
-          userposts += us;
-          userposts += '/';
-          userposts += find._id;
-          showData(userposts)
-            .then(result => {
-              res.render("userpost.njk", {
-                title: find.title,
-                time: moment(find.time).fromNow(),
-                username: us,
-                data: result
+        db.Post.find({ _id: ad }, (err, resultPost) => {
+          if (JSON.stringify(resultPost) === "[]") {
+            res.send("Not found.");
+          } else {
+            let userposts =
+            "/home/matin/Documents/projects/facebook/userpost/";
+            userposts += tank[0]._id;
+            userposts += '/';
+            userposts += resultPost[0]._id;
+            showData(userposts)
+              .then(result => {
+                res.render("userpost.njk", {
+                  title: resultPost[0].title,
+                  time: moment(resultPost[0].time).fromNow(),
+                  username: us,
+                  data: result
+                });
+              })
+              .catch(e => {
+                res.send("Error happened. Sorry");
               });
-            })
-            .catch(e => {
-              res.send("Error happened. Sorry");
-            });
-        } else {
-          res.send("404 Error: not found.");
-        }
+          }
+        })
       }
-    });
+      })
   });
   app.get("/forgot", (req, res) => {
     res.render("forgot.njk");
@@ -287,6 +298,20 @@ const gets = (app, db) => {
         res.render("changepass.njk", {
           username,
           unq: forgot
+        });
+      }
+    });
+  });
+  app.get("/token/:unq", (req, res) => {
+    const unq = req.params.unq;
+    db.User.find({ emailurl: unq }, (err, result) => {
+      if (JSON.stringify(result) === "[]") {
+        res.redirect("/");
+      } else {
+        result[0].emailurl = null;
+        result[0].save(err => {
+          if (err) throw err;
+          res.send("Good");
         });
       }
     });

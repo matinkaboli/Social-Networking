@@ -1,0 +1,28 @@
+{% if  data.description.avatar %}
+<img src="{{ '/profile/' + data.description.avatar }}">
+{% else %}
+<img src="/default/man.jpg">
+{% endif %}
+<h1>Name: {{ data.name }}</h1>
+<p>Username: {{ data.username }}</p>
+{% if data.showEmail == true %}
+<p>Email: {{ data.email }}</p>
+{% endif %}
+{% if data.description.sex == true %}
+  <p>Male</p>
+{% elif data.description.sex == false %}
+  <p>Female</p>
+{% endif %}
+{% if data.description.case == true %}
+  <p>Married</p>
+{% elif data.description.case == false %}
+  <p>Single</p>
+{% endif %}
+{% if data.description.about %}
+  <p>{{ data.description.about }}</p>
+{% endif %}
+{% if data.description.address %}
+  <p>{{ data.description.address }}</p>
+{% endif %}
+<p>Likes: {{ data.likes }}</p>
+<p>Joined At: {{ data.created }}</p>

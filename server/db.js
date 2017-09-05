@@ -19,15 +19,16 @@ const commentSchema = new Schema({
   user: Number,
   time: Number,
   text: String
-});
+}, { _id: false, versionKey: false });
 // Create schema for every post that user create
 const postSchema = new Schema({
   _id: String,
   title: String,
   time: Number,
   likes: [Number],
-  comments: [commentSchema]
-}, { _id: false });
+  comments: [commentSchema],
+  user: Number
+}, { _id: false, versionKey: false });
 // What happened lately?
 /*const recent = new Schema({
   status: Number,
@@ -37,7 +38,6 @@ const postSchema = new Schema({
 // Create schema for user
 const userSchema = new Schema({
   _id: Number,
-  seq: 0,
   name: String,
   username: {
     type: String,
@@ -48,7 +48,7 @@ const userSchema = new Schema({
   password: { type: String, required: true },
   email: { type: String, required: true, trim: true, unique: true },
   emailurl: { type: String },
-  created: Date,
+  created: Number,
   showEmail: { type: Boolean },
   description: {
     about: { type: String, trim: true },
@@ -61,23 +61,14 @@ const userSchema = new Schema({
   likes: Number,
   follower: [Number],
   following: [Number],
-  posts: [postSchema],
   admin: { type: Boolean },
   forgot: String
-});
-// Before saving
-userSchema.pre("save", next => {
-  let currentDate = new Date();
-
-  if (!this.created) {
-    this.created = currentDate;
-  }
-  next();
-});
+}, { versionKey: false });
 
 userSchema.plugin(autoInc.plugin, "User");
 
 const User = mongoose.model("User", userSchema);
+const Post = mongoose.model("Post", postSchema);
 // Check username and email in DB (using promise)
 const checkUserAndEmail = (username, email) => {
   return new Promise((resolve, reject) => {
@@ -115,8 +106,23 @@ const checkUsername = username => {
   return new Promise((resolve, reject) => {
     User.find({ username }, (err, result) => {
       if (err) throw err;
-      if (JSON.stringify(result) == "[]") reject(username);
-      else resolve(result);
+      if (JSON.stringify(result) == "[]") {
+        reject(username);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+}
+const checkEmail = email => {
+  return new Promise((resolve, reject) => {
+    User.find({ email }, (err, result) => {
+      if (err) throw err;
+      if (JSON.stringify(result) == "[]") {
+        reject(email);
+      } else {
+        resolve(result);
+      }
     });
   });
 }
@@ -133,9 +139,11 @@ const checkBy = (key, value) => {
 
 module.exports = {
   User,
+  Post,
   checkUserAndEmail,
   ckeckUserAndPassword,
   checkToken,
   checkUsername,
-  checkBy
+  checkBy,
+  checkEmail
 };

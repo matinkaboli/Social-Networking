@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Forgot Password</title>
+    <link rel="stylesheet" href="/styles/master.css">
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      form {
+        margin: 200px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <form class="login-form form" method="post" action="/forgotchange">
+      <input type="hidden" name="unq" value="{{ unq }}">
+      <input type="password" name="pass" placeholder="New password: ">
+      <input type="password" name="repass" placeholder="Re password: ">
+      <input type="submit" value="Change Password">
+    </form>
+  </body>
+</html>

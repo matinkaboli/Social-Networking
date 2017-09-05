@@ -45,7 +45,8 @@ const posts = (app, session, db) => {
         username,
         email,
         name,
-        likes: 0
+        likes: 0,
+        created: Date.now()
       });
       // Check if username or email taken by someone else
       db.checkUserAndEmail(username, email)
@@ -66,7 +67,7 @@ const posts = (app, session, db) => {
               console.error(e);
             });
           // Send email for complete the register
-          // mail(email, uniqueLink);
+          mail(email, uniqueLink, 0);
         })
         .catch(e => {
           res.render("index.njk", {
@@ -93,9 +94,9 @@ const posts = (app, session, db) => {
   });
   // Check email using fetch in script/register.js
   app.post("/checkemail", (req, res) => {
-    const email = req.body.email;
+    const email = req.body.email.toLowerCase();
 
-    db.checkBy("email", email)
+    db.checkEmail(email)
       .then(answer => {
         req.body.ok = false;
         res.json(req.body);
@@ -163,12 +164,16 @@ const posts = (app, session, db) => {
     const works = async () => {
       const CU = db.checkUsername(username)
         .catch(e => {
-          update.username = username;
-          req.session.user = username;
+          if (username !== "") {
+            update.username = username;
+            req.session.user = username;
+          }
         });
       const UE = db.checkBy("email", email)
         .catch(e => {
-          update.email = email;
+          if (email !== "") {
+            update.email = email;
+          }
         });
       const changeIMG = db.checkUsername(userSession)
         .then(result => {
@@ -247,6 +252,8 @@ const posts = (app, session, db) => {
     const wholeLink = req.headers.referer.split('/');
     const UTF = wholeLink[wholeLink.length - 1].toLowerCase();
 
+    console.log(wholeLink);
+    console.log(UTF);
     let watcherID, UTFID;
 
     const works = async () => {
@@ -305,7 +312,7 @@ const posts = (app, session, db) => {
     let watcherID, UTFID;
 
     const works = async () => {
-      const CU = db.checkUsername(req.session.user)
+      const CU = db.checkUsername(req.session.user.toLowerCase())
         .then(answer => {
           watcherID = answer[0]._id;
         })
@@ -347,6 +354,7 @@ const posts = (app, session, db) => {
         });
       });
     }
+    works();
   });
   app.post("/delete", (req, res) => {
     // Find user
@@ -360,7 +368,7 @@ const posts = (app, session, db) => {
         removeFile(address + result[0].description.avatar);
       }
       // Remove his posts in userpost
-      removeUserData(result[0].username);
+      removeUserData(result[0]._id);
       // Remove him on list of his followings' followers :|
       removeFollowings(result[0], db.User);
       // Remove him from followers
@@ -392,22 +400,22 @@ const posts = (app, session, db) => {
       res.json({ status: 0 });
     } else {
       const link = stringing.unique(40);
-      // Save post in userpost directory
-      savePost(username, content, link);
       // Send something in to the client
       // Save the post link, title and the date of that in the DB
       db.User.find({ username }, (err, tank) => {
         if (err) throw err;
-        const userSch = {
+        // Save post in userpost directory
+        savePost(tank[0]._id, content, link);
+        const p = new db.Post({
           _id: link,
           time: now,
+          user: tank[0]._id,
           title
-        };
-        tank[0].posts.push(userSch);
-        tank[0].save((err, updatedTank) => {
-          if (err) throw err;
-          res.json(req.body);
         });
+        p.save()
+          .then(() => {
+            res.json(req.body);
+          });
       });
     }
   });
@@ -415,17 +423,18 @@ const posts = (app, session, db) => {
     db.User.find(
       { username: req.body.username.toLowerCase() },
       (err, result) => {
-      if (result[0].posts.length === 0) {
-        res.json({ ok: false });
-      } else {
-        const postResult = result[0].posts;
-        const obj = {
-          ok: true,
-          len: postResult.length,
-          posts: postResult
-        };
-        res.json(obj);
-      }
+        db.Post.find({ user: result[0]._id }, (err, tank) => {
+          if (tank.length === 0) {
+            res.json({ ok: false });
+          } else {
+            const obj = {
+              ok: true,
+              len: tank.length,
+              posts: tank
+            };
+            res.json(obj);
+          }
+        });
     });
   });
   app.post("/deleteavatar", (req, res) => {
@@ -493,7 +502,7 @@ const posts = (app, session, db) => {
         });
       } else {
         const unique = stringing.unique(40) + '0' + result[0].username;
-        mail(result[0].email, unique);
+        mail(result[0].email, unique, 1);
         result[0].forgot = unique;
         result[0].save((err, updated) => {
           res.render("index.njk", {
@@ -557,28 +566,30 @@ const posts = (app, session, db) => {
           } else {
             const watcherID = result[0]._id;
             const userID = answer[0]._id;
-            const findUser = (el) => el._id === req.body._id;
-            const userPost = answer[0].posts.find(findUser);
-            if (JSON.stringify(userPost) == "{}") {
-              res.json({ ok: false });
-            } else {
-              const userPostIndex = answer[0].posts.findIndex(findUser);
-              const findUserID = (el) => el.likes === watcherID;
-              const isUserLiked = userPost["likes"].some(findUserID);
-              const findA = el => el === watcherID;
-              const indexA =
-              answer[0].posts[userPostIndex].likes.findIndex(findA);
+            db.Post.find({ _id: req.body._id }, (err, tank) => {
+              if (JSON.stringify(tank) == "[]") {
+                res.json({ ok: false });
+              } else {
+                const findWatcher = tank[0].likes.indexOf(watcherID);
+                if (findWatcher !== -1) {
+                  tank[0].likes.splice(findWatcher, 1);
 
-              answer[0].posts[userPostIndex].likes.splice(indexA, 1);
-              result[0].likes = result[0].likes - 1;
-              answer[0].save(err => {
-                if (err) throw err;
-              });
-              result[0].save(err => {
-                if (err) throw err;
-                res.json({ ok: true });
-              });
-            }
+                  result[0].likes = result[0].likes - 1;
+                  answer[0].save(err => {
+                    if (err) throw err;
+                  });
+                  result[0].save(err => {
+                    if (err) throw err;
+                    res.json({ ok: true });
+                  });
+                  tank[0].save(err => {
+                    if (err) throw err;
+                  });
+                } else {
+                  res.json({ ok: false });
+                }
+              }
+            });
           }
         });
       }
@@ -597,24 +608,28 @@ const posts = (app, session, db) => {
           } else {
             const watcherID = result[0]._id;
             const userID = answer[0]._id;
-            const findUser = (el) => el._id === req.body._id;
-            const userPost = answer[0].posts.find(findUser);
-            if (JSON.stringify(userPost) == "{}") {
-              res.json({ ok: false });
-            } else {
-              const userPostIndex = answer[0].posts.findIndex(findUser);
-              const findUserID = (el) => el.likes === watcherID;
-              const isUserLiked = userPost["likes"].some(findUserID);
-              answer[0].posts[userPostIndex].likes.push(watcherID);
-              result[0].likes = result[0].likes + 1;
-              answer[0].save(err => {
-                if (err) throw err;
-              });
-              result[0].save(err => {
-                if (err) throw err;
-                res.json({ ok: true });
-              });
-            }
+            db.Post.find({ _id: req.body._id }, (err, tank) => {
+              if (JSON.stringify(tank) == "[]") {
+                res.json({ ok: false });
+              } else {
+                if (!isUserLiked) {
+                  tank[0].likes.push(watcherID);
+                  result[0].likes = result[0].likes + 1;
+                  answer[0].save(err => {
+                    if (err) throw err;
+                  });
+                  result[0].save(err => {
+                    if (err) throw err;
+                    res.json({ ok: true });
+                  });
+                  tank[0].save(err => {
+                    if (err) throw err;
+                  });
+                } else {
+                  res.json({ ok: false });
+                }
+              }
+            });
           }
         });
       }

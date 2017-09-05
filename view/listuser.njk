@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    {% if status == 1 %}
+    <title>{{ username }}'s Followings</title>
+    {% elif status == 2 %}
+    <title>{{ username }}'s Followers</title>
+    {% endif %}
+  </head>
+  <body>
+      {% if done %}
+        <p>There is nothing anymore.</p>
+      {% else %}
+      <div id="lists">
+      {% for item in list %}
+        {% if item != undefined %}
+        <main>
+          <img width="50px" height="50px">
+          <a href="rootpath/user/{{ item }}">{{ item }}</a>
+        </main>
+        {% endif %}
+      {% endfor %}
+    </div>
+      {% endif %}
+      <form>
+        {% if status == 1 %}
+        <input type="hidden" name="tab" value="following">
+        {% elif status == 2 %}
+        <input type="hidden" name="tab" value="follower">
+        {% endif %}
+        {% if done == false %}
+        {% if (numPage - 1) == 0 %}
+        {% else %}
+        <input type="submit" name="page" value="{{ numPage - 1 }}">
+        {% endif %}
+        <input type="submit" name="page" value="{{ numPage }}" disabled>
+        {% if some == false %}
+        <input type="submit" name="page" value="{{ numPage + 1 }}">
+        {% endif %}
+        {% endif %}
+      </form>
+      <script>
+        const list = "{{ list }}";
+        const sp = list.split(",");
+      </script>
+      <script src="/script/getinfofollow.js"></script>
+  </body>
+</html>

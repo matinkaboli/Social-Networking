@@ -2,7 +2,7 @@ const fs = require("fs");
 
 const removeAllFiles = address => {
   const allFiles = fs.readdirSync(address);
-  for (var i = 0; i < allFiles.length; i++) {
+  for (let i = 0; i < allFiles.length; i++) {
     fs.unlink(address + allFiles[i], err => {
       if (err) throw err;
     });
@@ -12,8 +12,8 @@ const removeAllFiles = address => {
   });
 }
 
-const removeUserData = username => {
-  const address = `/home/matin/Documents/projects/facebook/userpost/${username}/`;
+const removeUserData = id => {
+  const address = `/home/matin/Documents/projects/facebook/userpost/${id}/`;
   if (fs.existsSync(address)) {
     removeAllFiles(address);
   }
