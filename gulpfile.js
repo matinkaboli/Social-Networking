@@ -9,7 +9,7 @@ const config = require("./config.json");
 gulp.task("default", ["watch"]);
 
 gulp.task("miniCSS", () => {
-  return gulp.src("./public/st/*.css")
+  return gulp.src("./st/*.css")
     .pipe(cleanCSS())
     .pipe(gulp.dest("./public/styles"));
 });
@@ -19,16 +19,16 @@ gulp.task("miniHTML", () => {
     .pipe(gulp.dest("views"));
 });
 gulp.task("dev:replace", () => {
-  return gulp.src("./**/*")
+  return gulp.src("./view/*.njk")
     .pipe(replace(/rootpath/g, config.website))
-    .pipe(gulp.dest("./**/*"));
+    .pipe(gulp.dest("./view"));
 });
-gulp.task("miniJS", ["miniCSS", "miniHTML"], () => {
-  return gulp.src("./public/sc/*.js")
+gulp.task("miniJS", ["miniCSS", "miniHTML", "dev:replace"], () => {
+  return gulp.src("./sc/*.js")
     .pipe(uglify())
     .pipe(gulp.dest("./public/script"));
 });
 
 gulp.task("watch", () => {
-  gulp.watch("./public/sc/*.js", ["miniJS"]);
+  gulp.watch("./sc/*.js", ["miniJS"]);
 });
