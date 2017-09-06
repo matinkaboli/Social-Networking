@@ -77,7 +77,7 @@ const checkUserAndEmail = (username, email) => {
       else reject("Username or email exists.");
     });
   });
-}
+};
 // Check username and password in DB
 const ckeckUserAndPassword = (username, password) => {
   return new Promise((resolve, reject) => {
@@ -86,7 +86,7 @@ const ckeckUserAndPassword = (username, password) => {
       else resolve(result);
     });
   });
-}
+};
 // Check token
 const checkToken = url => {
   return new Promise((resolve, reject) => {
@@ -100,7 +100,7 @@ const checkToken = url => {
       }
     });
   });
-}
+};
 // Does username exist?
 const checkUsername = username => {
   return new Promise((resolve, reject) => {
@@ -113,7 +113,7 @@ const checkUsername = username => {
       }
     });
   });
-}
+};
 const checkEmail = email => {
   return new Promise((resolve, reject) => {
     User.find({ email }, (err, result) => {
@@ -125,17 +125,17 @@ const checkEmail = email => {
       }
     });
   });
-}
+};
 
 const checkBy = (key, value) => {
   return new Promise((resolve, reject) => {
     User.find({ key: value }, (err, result) => {
       if (err) throw err;
-      if (JSON.stringify(result) == "[]") reject("Not Found.")
+      if (JSON.stringify(result) == "[]") reject("Not Found.");
       else resolve(result);
     });
   });
-}
+};
 
 module.exports = {
   User,

@@ -218,7 +218,7 @@ const posts = (app, session, db) => {
         // Bring user to Admin page after updating setting
         res.redirect("/you");
       });
-    }
+    };
     works();
   });
   // Change password in Setting page
@@ -635,7 +635,7 @@ const posts = (app, session, db) => {
       }
     });
   });
-}
+};
 
 module.exports = posts;
 // priority, compel, bury, coffin, spot, dump, willing

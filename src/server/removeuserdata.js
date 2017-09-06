@@ -10,21 +10,21 @@ const removeAllFiles = address => {
   fs.rmdir(address, err => {
     if (err) throw err;
   });
-}
+};
 
 const removeUserData = id => {
   const address = `maindir/userpost/${id}/`;
   if (fs.existsSync(address)) {
     removeAllFiles(address);
   }
-}
+};
 const removeOldImage = address => {
   const dir = "builddir/public/profile/";
   const full  = `${dir}${address}`;
   fs.unlink(full, err => {
     if (err) throw err;
   });
-}
+};
 
 module.exports.removeOldImage = removeOldImage;
 module.exports.removeUserData = removeUserData;

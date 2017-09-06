@@ -280,9 +280,9 @@ const gets = (app, db) => {
                 res.send("Error happened. Sorry");
               });
           }
-        })
+        });
       }
-      })
+    });
   });
   app.get("/forgot", (req, res) => {
     res.render("forgot.njk");
@@ -316,6 +316,6 @@ const gets = (app, db) => {
       }
     });
   });
-}
+};
 
 module.exports = gets;

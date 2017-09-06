@@ -26,6 +26,6 @@ const sendEm = (to, text, flag) => {
   transport.sendMail(mailOption, (err, info) => {
     if (err) throw err;
   });
-}
+};
 
 module.exports = sendEm;

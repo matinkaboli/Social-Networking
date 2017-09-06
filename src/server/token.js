@@ -12,6 +12,6 @@ const token = (app, db) => {
         res.send("Dont have such token.");
       });
   });
-}
+};
 
 module.exports = token;

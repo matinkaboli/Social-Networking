@@ -11,6 +11,6 @@ text: ${text}`;
   fs.writeFile(dest, msg, err => {
     if (err) throw err;
   });
-}
+};
 
 module.exports = saveMessage;

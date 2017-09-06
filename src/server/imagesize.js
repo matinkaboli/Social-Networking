@@ -12,6 +12,6 @@ const imageSize = filename => {
       if (err) throw err;
     });
   }, 2);
-}
+};
 
 module.exports = imageSize;

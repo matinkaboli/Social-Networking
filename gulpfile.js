@@ -5,8 +5,8 @@ var htmlmin = require("gulp-htmlmin");
 var uglify = require('gulp-uglify-es').default;
 var babel = require("gulp-babel");
 var rimraf = require("gulp-rimraf");
+var jshint = require("gulp-jshint");
 var fs = require("fs");
-
 var config = require("./config.json");
 
 gulp.task("default", ["watch"]);
@@ -62,4 +62,12 @@ gulp.task("start", ["moveDefault"], function() {
   fs.mkdir("./build/public/profile/", err => {
     if (err) throw err;
   });
+});
+gulp.task("lint", function() {
+  return gulp.src("./src/server/**/*.js")
+    .pipe(jshint())
+    .pipe(jshint.reporter("jshint-stylish"));
+});
+gulp.task("watch", function() {
+  gulp.watch("./src/server/**/*.js", ["lint"]);
 });

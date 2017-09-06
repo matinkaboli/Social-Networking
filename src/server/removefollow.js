@@ -13,7 +13,7 @@ const removeFollowings = (user, db) => {
       });
     }
   }
-}
+};
 const removeFollowers = (user, db) => {
   if (user.following.length > 0) {
     for (let i = 0; i < user.following.length; i++) {
@@ -29,7 +29,7 @@ const removeFollowers = (user, db) => {
       });
     }
   }
-}
+};
 
 module.exports = {
   removeFollowings,

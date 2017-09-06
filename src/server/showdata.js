@@ -8,8 +8,8 @@ const showData = address => {
       } else {
         resolve(data);
       }
-    })
-  })
-}
+    });
+  });
+};
 
 module.exports = showData;

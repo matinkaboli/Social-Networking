@@ -19,6 +19,6 @@ const savePost = (id, content, uniqueStr) => {
       });
     });
   }
-}
+};
 
 module.exports = savePost;

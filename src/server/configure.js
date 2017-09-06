@@ -32,6 +32,6 @@ const configs = (app, express, session) => {
     })
   };
   app.use(session(configSession));
-}
+};
 
 module.exports = configs;
