@@ -4,7 +4,7 @@ mongoose.Promise = Promise;
 const autoInc = require("mongoose-auto-increment");
 
 // Connect to mongodb
-const connection = mongoose.connect("mongodb://localhost/test", {
+const connection = mongoose.connect("mongodb://localpath/test", {
   useMongoClient: true
 });
 

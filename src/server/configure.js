@@ -28,7 +28,7 @@ const configs = (app, express, session) => {
     store: new MongoStore({
       host: "127.0.0.1",
       port: "27017",
-      url: "mongodb://localhost/session"
+      url: "mongodb://localpath/session"
     })
   };
   app.use(session(configSession));

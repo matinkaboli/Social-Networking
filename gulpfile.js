@@ -4,45 +4,62 @@ var replace = require("gulp-replace");
 var htmlmin = require("gulp-htmlmin");
 var uglify = require('gulp-uglify-es').default;
 var babel = require("gulp-babel");
+var rimraf = require("gulp-rimraf");
+var fs = require("fs");
 
 var config = require("./config.json");
 
 gulp.task("default", ["watch"]);
 
+gulp.task("clean", function() {
+  return gulp.src("./build/**/*")
+    .pipe(rimraf());
+});
 gulp.task("miniC", function() {
-  return gulp.src("./st/*.css")
+  return gulp.src("./src/public/styles/*.css")
     .pipe(cleanCSS())
-    .pipe(gulp.dest("./public/styles"));
+    .pipe(gulp.dest("./build/public/styles"));
 });
 gulp.task("miniH", function() {
-  return gulp.src("view/*.njk")
+  return gulp.src("./src/views/*.njk")
     .pipe(htmlmin({ collapseWhitespace: true }))
-    .pipe(gulp.dest("views"));
+    .pipe(gulp.dest("./build/views"));
 });
 gulp.task("rep1", function() {
-  return gulp.src("./view/*.njk")
+  return gulp.src("./src/views/*.njk")
     .pipe(replace(/rootpath/g, config.website))
-    .pipe(gulp.dest("./view"));
+    .pipe(gulp.dest("./build/views"));
 });
 gulp.task("rep2", function() {
-  return gulp.src("./server/*.js")
+  return gulp.src("./src/server/*.js")
     .pipe(replace(/rootpath/g, config.website))
-    .pipe(gulp.dest("./server"));
+    .pipe(replace(/maindir/g, config.maindir))
+    .pipe(replace(/localpath/g, config.localpath))
+    .pipe(replace(/builddir/g), config.builddir)
+    .pipe(gulp.dest("./build/server"));
 });
-gulp.task("rep3", function() {
-  return gulp.src("./server/*.js")
-    .pipe(replace(/maindir/g, config.dir))
-    .pipe(gulp.dest("./server"));
-});
-gulp.task("miniJ", function() {
-  return gulp.src("./sc/*.js")
+gulp.task("miniJ1", function() {
+  return gulp.src("./src/public/script/*.js")
     .pipe(babel({
       presets: ['env']
     }))
     .pipe(uglify())
-    .pipe(gulp.dest("./public/script"));
+    .pipe(gulp.dest("./build/public/script"));
 });
-
-gulp.task("watch", function() {
-  gulp.watch("./sc/*.js", ["miniJ"]);
+gulp.task("miniJ2", function() {
+  return gulp.src("./src/server/*.js")
+    .pipe(babel({
+      presets: ['env']
+    }))
+    .pipe(uglify())
+    .pipe(gulp.dest("./build/server"));
+});
+gulp.task("moveDefault", function() {
+  return gulp.src("./src/public/default/*")
+    .pipe(gulp.dest("./build/public/default"));
+});
+gulp.task("start", ["moveDefault"], function() {
+  fs.mkdir("./build/public/profile/", err => {
+    if (err) throw err;
+  });
 });

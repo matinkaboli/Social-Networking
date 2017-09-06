@@ -1,5 +1,7 @@
 {
   "title": "Facebook",
   "website": "http://localhost",
-  "dir": "/home/matin/Documents/projects/facebook"
+  "maindir": "/home/matin/Documents/projects/facebook",
+  "builddir": "/home/matin/Documents/projects/facebook/build",
+  "localpath": "localhost"
 }
