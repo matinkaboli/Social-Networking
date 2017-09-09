@@ -13,7 +13,7 @@
     <div id="posts">
     {% for item in list %}
     <div class="onepost">
-      <p id="title">Title: {{ item.title }}</p>
+      <p id="title">Title: <a href="rootpath/u/{{ data.username }}/s/{{ item._id }}">{{ item.title }}</a></p>
       <p id="time">Time: {{ item.time }}</p>
       <p id="content">Content: {{ item.content }}</p>
       <p>Likes: <span>{{ item.likes | length }}</span></p>
@@ -26,6 +26,9 @@
     </div>
     {% endfor %}
     </div>
+    {% endif %}
+    {% if lenPost > 10 %}
+      <button enumerate="1" id="morepost">More...</button>
     {% endif %}
     <script src="/script/posts.js"></script>
   </body>

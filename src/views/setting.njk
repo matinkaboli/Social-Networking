@@ -11,7 +11,7 @@
       <p style="display: none" id="em">{{ data.email }}</p>
       <fieldset>
         <legend>Main setting</legend>
-        <form action="/setting" name="setting" method="post" enctype="multipart/form-data">
+        <form action="/setting" name="setting" method="post" enctype="multipart/form-data" onsubmit="return checkFields()">
           <input type="text" name="name" placeholder="Name: " value="{{ data.name }}">
           <input type="text" name="username" placeholder="Username: " value="{{ data.username }}">
           <input type="email" name="email" placeholder="Email: " value="{{ data.email }}">
@@ -71,7 +71,7 @@
     <div id="passwordsetting">
       <fieldset>
         <legend>Password setting</legend>
-        <form action="/changepass" method="post">
+        <form action="/changepass" method="post" name="changepass" onsubmit="return changePass()">
           <input type="password" name="oldpassword" placeholder="Old password: ">
           <input type="password" name="newpassword" placeholder="New Password: ">
           <input type="password" name="repassword" placeholder="Re-Password: ">

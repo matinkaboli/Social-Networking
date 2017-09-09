@@ -7,6 +7,7 @@ var babel = require("gulp-babel");
 var rimraf = require("gulp-rimraf");
 var jshint = require("gulp-jshint");
 var fs = require("fs");
+
 var config = require("./config.json");
 
 gulp.task("default", ["watch"]);
@@ -22,33 +23,33 @@ gulp.task("miniC", function() {
 });
 gulp.task("miniH", function() {
   return gulp.src("./src/views/*.njk")
+    .pipe(replace(/rootpath/g, config.website))
     .pipe(htmlmin({ collapseWhitespace: true }))
     .pipe(gulp.dest("./build/views"));
-});
-gulp.task("rep1", function() {
-  return gulp.src("./src/views/*.njk")
-    .pipe(replace(/rootpath/g, config.website))
-    .pipe(gulp.dest("./build/views"));
-});
-gulp.task("rep2", function() {
-  return gulp.src("./src/server/*.js")
-    .pipe(replace(/rootpath/g, config.website))
-    .pipe(replace(/maindir/g, config.maindir))
-    .pipe(replace(/localpath/g, config.localpath))
-    .pipe(replace(/builddir/g), config.builddir)
-    /*.pipe(babel({
-      presets: ['env']
-    }))*/
-    //.pipe(uglify())
-    .pipe(gulp.dest("./build/server"));
 });
 gulp.task("miniJ1", function() {
   return gulp.src("./src/public/script/*.js")
     /*.pipe(babel({
       presets: ['env']
-    })) */
-    //.pipe(uglify())
+    }))
+    .pipe(uglify())*/
     .pipe(gulp.dest("./build/public/script"));
+});
+gulp.task("miniJ2", ["miniJ1"], function() {
+  return gulp.src("./src/server/*.js")
+    /*.pipe(babel({
+      presets: ['env']
+    }))
+    .pipe(uglify())*/
+    .pipe(gulp.dest("./build/server"));
+});
+gulp.task("rep2", ["miniJ2"], function() {
+  return gulp.src("./build/server/*.js")
+    .pipe(replace(/BUILDDIRECTORY/g, config.builddir))
+    .pipe(replace(/rootpath/g, config.website))
+    .pipe(replace(/maindir/g, config.maindir))
+    .pipe(replace(/localpath/g, config.localpath))
+    .pipe(gulp.dest("./build/server"));
 });
 gulp.task("moveDefault", function() {
   return gulp.src("./src/public/default/*")

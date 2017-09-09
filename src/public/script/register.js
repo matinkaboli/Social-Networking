@@ -87,8 +87,15 @@ function prevent(e) {
 }
 function validateEmail(email) {
     const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    console.log(re.test(email));
     return re.test(email);
+}
+function validateUsername(username) {
+  const re = /^[a-zA-Z0-9]+([_ .]?[a-zA-Z0-9])*$/;
+  return re.test(username);
+}
+function validatePassword(password) {
+  const re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;
+  return re.test(password);
 }
 // Before submit
 function lastCheck() {
@@ -117,13 +124,21 @@ function lastCheck() {
     return false;
   }
   if (form.password.value !== form.repassword.value) {
-    alert("Make a right password.");
+    alert("Write a correct password.");
     return false;
   }
-  if (validateEmail(form.email.value)) {
-    console.log("Email is valid");
-  } else {
-    alert("Make a right email.");
+  if (!validateEmail(form.email.value)) {
+    alert("Write a correct email.");
+    return false;
+  }
+  if (!validateUsername(form.username.value)) {
+    alert("Write a standard username");
+    return false;
+  }
+  if (!validatePassword(form.password.value)) {
+    alert(`Your password should have at lease one
+number, upper case letter and lower case letter and symbol
+and at least 8 number.`);
     return false;
   }
   return true;

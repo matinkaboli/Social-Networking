@@ -24,6 +24,6 @@ app.use((req, res, next) => {
   });
 });
 // Listen to 80 port
-app.listen(80, () => {
+app.listen(3000, () => {
   console.log("The server is running now.");
 });

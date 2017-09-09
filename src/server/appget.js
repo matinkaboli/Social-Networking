@@ -66,7 +66,7 @@ const gets = (app, db) => {
       });
     }
   });
-  app.get("/user/:username", (req, res) => {
+  app.get("/u/:username", (req, res) => {
     if (req.query.tab) {
       const username = req.params.username.toLowerCase();
       db.User.find({ username }, (err, tonk) => {
@@ -213,27 +213,33 @@ const gets = (app, db) => {
                   const next = iter.next();
 
                   if (next.done) {
-                    // If you didn't
-                    if (!finder) {
-                      res.render("userin.njk", {
-                        data: result[0],
-                        created: moment(result[0].created).fromNow(),
-                        self: req.session.user,
-                        isFollowed: false,
-                        list,
-                        url: username
-                      });
-                    // If you did
-                    } else {
-                      res.render("userin.njk", {
-                        data: result[0],
-                        created: moment(result[0].created).fromNow(),
-                        self: req.session.user,
-                        isFollowed: true,
-                        list,
-                        url: username
-                      });
-                    }
+                    db.Post.find({
+                      user: result[0]._id
+                    }, (err, allPosts) => {
+                      // If you didn't
+                      if (!finder) {
+                        res.render("userin.njk", {
+                          data: result[0],
+                          created: moment(result[0].created).fromNow(),
+                          self: req.session.user,
+                          isFollowed: false,
+                          list,
+                          url: username,
+                          lenPost: allPosts.length
+                        });
+                      // If you did
+                      } else {
+                        res.render("userin.njk", {
+                          data: result[0],
+                          created: moment(result[0].created).fromNow(),
+                          self: req.session.user,
+                          isFollowed: true,
+                          list,
+                          url: username,
+                          lenPost: allPosts.length
+                        });
+                      }
+                    });
                     return;
                   }
                   next.value.then(loop);
@@ -256,7 +262,7 @@ const gets = (app, db) => {
   app.get("/contact", (req, res) => {
     res.render("contact.njk");
   });
-  app.get("/user/:username/status/:address", (req, res) => {
+  app.get("/u/:username/s/:address", (req, res) => {
     const us = req.params.username.toLowerCase();
     const ad = req.params.address;
     db.User.find({ username: us }, (err, tank) => {

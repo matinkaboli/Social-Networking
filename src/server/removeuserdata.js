@@ -19,7 +19,7 @@ const removeUserData = id => {
   }
 };
 const removeOldImage = address => {
-  const dir = "builddir/public/profile/";
+  const dir = "BUILDDIRECTORY/public/profile/";
   const full  = `${dir}${address}`;
   fs.unlink(full, err => {
     if (err) throw err;

@@ -1,6 +1,7 @@
 // main modules
 const stringing = require("stringing");
 const multer = require("multer");
+const moment = require("moment");
 // import files
 const imageSize  = require("./imagesize");
 const mail       = require("./mail");
@@ -8,10 +9,24 @@ const enc        = require("./enc");
 const removeFile = require("./fs");
 const msg        = require("./msg");
 const savePost   = require("./posts");
+const showData   = require("./showdata");
 const { removeUserData }   = require("./removeuserdata");
 const { removeOldImage }   = require("./removeuserdata");
 const { removeFollowings } = require("./removefollow");
 const { removeFollowers }  =  require("./removefollow");
+
+function validateEmail(email) {
+  const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(email);
+}
+function validateUsername(username) {
+  const re = /^[a-zA-Z0-9]+([_ .]?[a-zA-Z0-9])*$/;
+  return re.test(username);
+}
+function validatePassword(password) {
+  const re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;
+  return re.test(password);
+}
 
 const posts = (app, session, db) => {
   const multerConfig = multer({
@@ -30,7 +45,6 @@ const posts = (app, session, db) => {
     const validShow = req.body.showemail ? true : false;
     const password = req.body.password;
     const name = req.body.name;
-
     if (!username || !email || !password || !name) {
       res.redirect("/");
       /*res.render("index.njk", {
@@ -38,47 +52,55 @@ const posts = (app, session, db) => {
       });*/
     } else {
       if (req.body.captcha === req.session.captcha) {
-        req.session.captcha = null;
-        const user = new db.User({
-          password: enc.encrypt(password),
-          // Set random link to emailurl
-          emailurl: uniqueLink,
-          showEmail: validShow,
-          username,
-          email,
-          name,
-          likes: 0,
-          created: Date.now()
-        });
-        // Check if username or email taken by someone else
-        db.checkUserAndEmail(username, email)
-          .then(answer => {
-            // Save user to the session for 7 days.
-            req.session.user = username;
-            // Save object
-            user.save()
-              .then(() => {
-                res.render("admin.njk", {
-                  data: {
-                    username,
-                    name
-                  }
-                });
-              })
-              .catch(e => {
-                console.error(e);
-              });
-            // Send email for complete the register
-            mail(email, uniqueLink, 0);
-          })
-          .catch(e => {
-            res.redirect("/");
-            /*res.render("index.njk", {
-              username,
-              email,
-              status: 1
-            });*/
+        if (
+          validateEmail(email) &&
+          validateUsername(username) &&
+          validatePassword(password)
+        ) {
+          req.session.captcha = null;
+          const user = new db.User({
+            password: enc.encrypt(password),
+            // Set random link to emailurl
+            emailurl: uniqueLink,
+            showEmail: validShow,
+            username,
+            email,
+            name,
+            likes: 0,
+            created: Date.now()
           });
+          // Check if username or email taken by someone else
+          db.checkUserAndEmail(username, email)
+            .then(answer => {
+              // Save user to the session for 7 days.
+              req.session.user = username;
+              // Save object
+              user.save()
+                .then(() => {
+                  res.render("admin.njk", {
+                    data: {
+                      username,
+                      name
+                    }
+                  });
+                })
+                .catch(e => {
+                  console.error(e);
+                });
+              // Send email for complete the register
+              mail(email, uniqueLink, 0);
+            })
+            .catch(e => {
+              res.redirect("/");
+              /*res.render("index.njk", {
+                username,
+                email,
+                status: 1
+              });*/
+          });
+        } else {
+          res.redirect("/");
+        }
       } else {
         res.redirect("/");
       }
@@ -123,7 +145,7 @@ const posts = (app, session, db) => {
         res.redirect("/you");
       })
       .catch(e => {
-        res.render("/");
+        res.redirect("/");
         /*res.render("index.njk", {
           status: 3
         });*/
@@ -157,14 +179,18 @@ const posts = (app, session, db) => {
       const CU = db.checkUsername(username)
         .catch(e => {
           if (username !== "") {
-            update.username = username;
-            req.session.user = username;
+            if (validateUsername(username)) {
+              update.username = username;
+              req.session.user = username;
+            }
           }
         });
       const UE = db.checkBy("email", email)
         .catch(e => {
           if (email !== "") {
-            update.email = email;
+            if (validateEmail(email)) {
+              update.email = email;
+            }
           }
         });
       const changeIMG = db.checkUsername(userSession)
@@ -221,7 +247,12 @@ const posts = (app, session, db) => {
       username: req.session.user.toLowerCase()
     };
     // Change it
-    const update = { password: enc.encrypt(req.body.newpassword) };
+    const update = {};
+    if (req.body.newpassword === req.body.repassword) {
+      if (validatePassword(req.body.newpassword)) {
+        update.password = enc.encrypt(req.body.newpassword);
+      }
+    }
     // Set in DB
     db.User.update(condition, update, (err, numAffected) => {
       // bring user to Admin page after updating setting
@@ -353,7 +384,7 @@ const posts = (app, session, db) => {
       // Find his avatar (it he has one)
       if (result[0].description.avatar) {
         const address =
-          "builddir/public/profile/";
+          "BUILDDIRECTORY/public/profile/";
           // Remove that file!
         removeFile(address + result[0].description.avatar);
       }
@@ -435,7 +466,7 @@ const posts = (app, session, db) => {
     const query = db.User.find(condition);
     query.then(doc => {
       const address =
-        "builddir/public/profile/";
+        "BUILDDIRECTORY/public/profile/";
         // Remove that file!
       removeFile(address + doc[0].description.avatar);
       doc[0].description.avatar = undefined;
@@ -623,6 +654,94 @@ const posts = (app, session, db) => {
                 } else {
                   res.json({ ok: false });
                 }
+              }
+            });
+          }
+        });
+      }
+    });
+  });
+  app.post("/morepost", (req, res) => {
+    const enumerate = req.body.enumerate * 10;
+    const user = req.body.username;
+    const watcher = req.body.watcher;
+    const queryU = db.User.find({ username: user });
+    queryU.then(docU => {
+      if (JSON.stringify(docU) === "[]") {
+        res.json({ ok: false });
+      } else {
+        const idUser = docU[0]._id;
+        const queryP = db.Post.find({ user: idUser })
+          .skip(enumerate)
+          .limit(10)
+          .sort({ time: 1 });
+        queryP.then(docP => {
+          if (JSON.stringify(docP) === "[]") {
+            res.json({ done: true });
+          } else {
+            const queryW = db.User.find({ username: watcher });
+            queryW.then(docW => {
+              if (JSON.stringify(docW) === "[]") {
+                res.json({ ok: false });
+              } else {
+                const idWatcher = docW[0]._id;
+                const list = [];
+                function* getOtherPost() {
+                  for (const post of docP) {
+                    yield new Promise(resolve => {
+                      const dir = "maindir/userpost";
+                      showData(`${dir}/${idUser}/${post._id}`)
+                        .then(dataPost => {
+                          const findA = e => e === idWatcher;
+                          const isLiked = post.likes.some(findA);
+                          const obj = {
+                            time: moment(post.time).fromNow(),
+                            title: post.title,
+                            content: dataPost,
+                            _id: post._id,
+                            likes: post.likes,
+                          };
+                          if (isLiked) {
+                            obj.like = true;
+                          } else {
+                            obj.like = false;
+                          }
+                          list.push(obj);
+                          resolve();
+                        })
+                        .catch(e => {
+                          console.error(e);
+                        });
+                    });
+                  }
+                }
+                const iter = getOtherPost();
+                (function loop() {
+                  const next = iter.next();
+
+                  if (next.done) {
+                    const leftPost = db.Post.find({ user: idUser })
+                      .skip(enumerate + 10)
+                      .sort({ time: 1 });
+
+                    leftPost.then(docL => {
+                      if (JSON.stringify(docL) === "[]") {
+                        res.json({
+                          done: true,
+                          list
+                        });
+                      } else {
+                        res.json({
+                          done: false,
+                          list
+                        })
+                      }
+                    });
+
+                    return;
+                  }
+                  next.value.then(loop);
+                }());
               }
             });
           }

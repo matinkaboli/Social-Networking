@@ -75,14 +75,43 @@ function checkStatus(res) {
     throw error;
   }
 }
-/* function getInfo() {
-  const file = document.getElementById("ftu");
-  console.log(file);
-  const imageName = file[0].name.split('.');
-  const ext = imageName[imageName.length - 1];
-  if (ext === "jpg" || ext === "png") {
-    return true;
+function validateEmail(email) {
+    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+}
+function validateUsername(username) {
+  const re = /^[a-zA-Z0-9]+([_ .]?[a-zA-Z0-9])*$/;
+  return re.test(username);
+}
+function validatePassword(password) {
+  const re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;
+  return re.test(password);
+}
+
+function checkFields() {
+  if (!validateEmail(setting.email.value)) {
+    alert("Write a correct email.");
+    return false;
   }
-  alert("Upload an image...");
-  return false;
-} */
+  if (!validateUsername(setting.username.value)) {
+    alert("Write a correct username.");
+    return false;
+  }
+  return true;
+}
+
+const passForm = document.forms["changepass"];
+
+function changePass() {
+  if (passForm.newpassword.value !== passForm.repassword.value) {
+    alert("New password and re-password are not the same");
+    return false;
+  }
+  if (!validatePassword(passForm.newpassword.value)) {
+    alert(`Your password should have at lease one
+number, upper case letter and lower case letter and symbol
+and at least 8 number.`);
+    return false;
+  }
+  return true;
+}
