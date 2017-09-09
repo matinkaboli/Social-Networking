@@ -3,8 +3,10 @@ const connectMongo = require("connect-mongo");
 const nunjucks = require("nunjucks");
 const bodyParser = require("body-parser");
 const favicon = require("serve-favicon");
+const compression = require('compression');
 
 const configs = (app, express, session) => {
+  app.use(compression());
   app.use(favicon("maindir/fb.ico"));
   app.use(helmet());
   // Add static files
