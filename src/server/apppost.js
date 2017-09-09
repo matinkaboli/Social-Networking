@@ -8,10 +8,10 @@ const enc        = require("./enc");
 const removeFile = require("./fs");
 const msg        = require("./msg");
 const savePost   = require("./posts");
-const { removeUserData } = require("./removeuserdata");
-const { removeOldImage } = require("./removeuserdata");
+const { removeUserData }   = require("./removeuserdata");
+const { removeOldImage }   = require("./removeuserdata");
 const { removeFollowings } = require("./removefollow");
-const { removeFollowers } =  require("./removefollow");
+const { removeFollowers }  =  require("./removefollow");
 
 const posts = (app, session, db) => {
   const multerConfig = multer({
@@ -32,50 +32,56 @@ const posts = (app, session, db) => {
     const name = req.body.name;
 
     if (!username || !email || !password || !name) {
-      res.redirect("index.njk", {
+      res.redirect("/");
+      /*res.render("index.njk", {
         status: 7
-      });
+      });*/
     } else {
-      const user = new db.User({
-        // Encrypt Password
-        password: enc.encrypt(password),
-        // Set random link to emailurl
-        emailurl: uniqueLink,
-        showEmail: validShow,
-        username,
-        email,
-        name,
-        likes: 0,
-        created: Date.now()
-      });
-      // Check if username or email taken by someone else
-      db.checkUserAndEmail(username, email)
-        .then(answer => {
-          // Save user to the session for 7 days.
-          req.session.user = username;
-          // Save object
-          user.save()
-            .then(() => {
-              res.render("admin.njk", {
-                data: {
-                  username,
-                  name
-                }
-              });
-            })
-            .catch(e => {
-              console.error(e);
-            });
-          // Send email for complete the register
-          mail(email, uniqueLink, 0);
-        })
-        .catch(e => {
-          res.render("index.njk", {
-            username,
-            email,
-            status: 1
-          });
+      if (req.body.captcha === req.session.captcha) {
+        req.session.captcha = null;
+        const user = new db.User({
+          password: enc.encrypt(password),
+          // Set random link to emailurl
+          emailurl: uniqueLink,
+          showEmail: validShow,
+          username,
+          email,
+          name,
+          likes: 0,
+          created: Date.now()
         });
+        // Check if username or email taken by someone else
+        db.checkUserAndEmail(username, email)
+          .then(answer => {
+            // Save user to the session for 7 days.
+            req.session.user = username;
+            // Save object
+            user.save()
+              .then(() => {
+                res.render("admin.njk", {
+                  data: {
+                    username,
+                    name
+                  }
+                });
+              })
+              .catch(e => {
+                console.error(e);
+              });
+            // Send email for complete the register
+            mail(email, uniqueLink, 0);
+          })
+          .catch(e => {
+            res.redirect("/");
+            /*res.render("index.njk", {
+              username,
+              email,
+              status: 1
+            });*/
+          });
+      } else {
+        res.redirect("/");
+      }
     }
   });
   // Check username using fetch in script/register.js
@@ -117,9 +123,10 @@ const posts = (app, session, db) => {
         res.redirect("/you");
       })
       .catch(e => {
-        res.render("index.njk", {
+        res.render("/");
+        /*res.render("index.njk", {
           status: 3
-        });
+        });*/
       });
   });
   app.post("/setting", multerConfig.single("avatar"), (req, res) => {
@@ -128,39 +135,24 @@ const posts = (app, session, db) => {
     const username = req.body.username.toLowerCase();
     const email = req.body.email.toLowerCase();
     // Change it
-    const update = {
-      description: {}
-    };
+    const update = { description: {} };
 
-    if (req.body.name) {
-      update.name = req.body.name;
-    }
-    if (req.body.about) {
-      update.description.about = req.body.about;
-    }
-    if (req.body.address) {
-      update.description.address = req.body.address;
-    }
-    if (req.body.link) {
-      update.description.link = req.body.link;
-    }
+    if (req.body.name) { update.name = req.body.name; }
+    if (req.body.about) { update.description.about = req.body.about; }
+    if (req.body.address) { update.description.address = req.body.address;}
+    if (req.body.link) { update.description.link = req.body.link; }
     // Check select input
-    if (req.body.sex === "male") {
-      update.description.sex = true;
-    } else if (req.body.sex === "female") {
-      update.description.sex = false;
-    }
+    if (req.body.sex === "male") { update.description.sex = true;
+    }else if (req.body.sex === "female") { update.description.sex = false;}
     // Check select input
     if (req.body.case === "married") {
       update.description.case = true;
     } else if (req.body.case === "single") {
       update.description.case = false;
     }
-    if (req.body.showemail) {
-      update.showEmail = true;
-    } else {
-      update.showEmail = false;
-    }
+    if (req.body.showemail) { update.showEmail = true;
+    } else { update.showEmail = false; }
+
     const works = async () => {
       const CU = db.checkUsername(username)
         .catch(e => {
@@ -229,16 +221,14 @@ const posts = (app, session, db) => {
       username: req.session.user.toLowerCase()
     };
     // Change it
-    const update = {
-      password: enc.encrypt(req.body.newpassword)
-    };
+    const update = { password: enc.encrypt(req.body.newpassword) };
     // Set in DB
     db.User.update(condition, update, (err, numAffected) => {
       // bring user to Admin page after updating setting
       if (numAffected.nModified == 1) {
         res.redirect("you");
       } else {
-        console.log("Did not save.");
+        console.error("Did not save.");
         res.redirect("you");
       }
     });
@@ -251,9 +241,6 @@ const posts = (app, session, db) => {
   app.post("/follow", (req, res) => {
     const wholeLink = req.headers.referer.split('/');
     const UTF = wholeLink[wholeLink.length - 1].toLowerCase();
-
-    console.log(wholeLink);
-    console.log(UTF);
     let watcherID, UTFID;
 
     const works = async () => {
@@ -282,21 +269,24 @@ const posts = (app, session, db) => {
         const f = tank[0].follower;
         const index = f.indexOf(watcherID);
         if (index == -1) {
-          tank[0].follower.push(watcherID);
-          tank[0].save((err, updatedTank) => {
-            if (err) throw err;
-            req.body.fo = "followed";
-            res.json(req.body);
-            db.User.find(
-              { username: req.session.user.toLowerCase() },
-              (err, tonk) => {
+          if (req.session.user.toLowerCase() !== UTF) {
+
+            tank[0].follower.push(watcherID);
+            tank[0].save((err, updatedTank) => {
               if (err) throw err;
-              tonk[0].following.push(UTFID);
-              tonk[0].save((err, updatedTank) => {
+              db.User.find(
+                { username: req.session.user.toLowerCase() },
+                (err, tonk) => {
                 if (err) throw err;
+                tonk[0].following.push(UTFID);
+                tonk[0].save((err, updatedTank) => {
+                  req.body.fo = "followed";
+                  res.json(req.body);
+                  if (err) throw err;
+                });
               });
             });
-          });
+          }
         } else {
           req.body.fo = "followed";
           res.json(req.body);
@@ -377,9 +367,10 @@ const posts = (app, session, db) => {
       db.User.find(condition).remove((err, aff) => {
         if (err) throw err;
         req.session.destroy();
-        res.render("index.njk", {
+        res.redirect("/");
+        /*res.render("index.njk", {
           status: 2
-        });
+        });*/
       });
     });
   });
@@ -497,17 +488,19 @@ const posts = (app, session, db) => {
     const username = req.body.username.toLowerCase();
     db.User.find({ username }, (err, result) => {
       if (JSON.stringify(result) == "[]") {
-        res.render("index.njk", {
+        res.redirect("/");
+        /*res.render("index.njk", {
           status: 3
-        });
+        });*/
       } else {
         const unique = stringing.unique(40) + '0' + result[0].username;
         mail(result[0].email, unique, 1);
         result[0].forgot = unique;
         result[0].save((err, updated) => {
-          res.render("index.njk", {
+          res.redirect("/");
+          /*res.render("index.njk", {
             status: 4
-          });
+          });*/
         });
       }
     });
@@ -517,40 +510,45 @@ const posts = (app, session, db) => {
     const repass = req.body.repass;
     if (pass === repass) {
       if (pass.length < 9) {
-        res.render("index.njk", {
+        res.render("/");
+        /*res.render("index.njk", {
           status: 6
-        });
+        });*/
       } else {
         const enq = req.body.unq;
         const enqSp = enq.split('0');
         const username = enqSp[enqSp.length - 1];
         db.User.find({ username }, (err, result) => {
           if (JSON.stringify(result) == "[]") {
-            res.render("index.njk", {
+            res.redirect("/");
+            /*res.render("index.njk", {
               status: 7
-            });
+            });*/
           } else {
             if (result[0].forgot === enq) {
               const p = enc.encrypt(pass);
               result[0].password = p;
               result[0].forgot = null;
               result[0].save((err, updated) => {
-                res.render("index.njk", {
+                res.redirect("/");
+                /*res.render("index.njk", {
                   status: 8
-                });
+                });*/
               });
             } else {
-              res.render("index.njk", {
+              res.redirect("/");
+              /*res.render("index.njk", {
                 status: 7
-              });
+              });*/
             }
           }
         });
       }
     } else {
-      res.render("index.njk", {
+      res.redirect("/");
+      /*res.render("index.njk", {
         status: 5
-      });
+      });*/
     }
   });
   app.post("/dislike", (req, res) => {
@@ -575,9 +573,6 @@ const posts = (app, session, db) => {
                   tank[0].likes.splice(findWatcher, 1);
 
                   result[0].likes = result[0].likes - 1;
-                  answer[0].save(err => {
-                    if (err) throw err;
-                  });
                   result[0].save(err => {
                     if (err) throw err;
                     res.json({ ok: true });
@@ -612,12 +607,12 @@ const posts = (app, session, db) => {
               if (JSON.stringify(tank) == "[]") {
                 res.json({ ok: false });
               } else {
+                const likes = tank[0].likes;
+                const userLikeFN = e => e === watcherID;
+                const isUserLiked = likes.some(userLikeFN);
                 if (!isUserLiked) {
                   tank[0].likes.push(watcherID);
                   result[0].likes = result[0].likes + 1;
-                  answer[0].save(err => {
-                    if (err) throw err;
-                  });
                   result[0].save(err => {
                     if (err) throw err;
                     res.json({ ok: true });

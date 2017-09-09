@@ -2,8 +2,10 @@ const helmet = require("helmet");
 const connectMongo = require("connect-mongo");
 const nunjucks = require("nunjucks");
 const bodyParser = require("body-parser");
+const favicon = require("serve-favicon");
 
 const configs = (app, express, session) => {
+  app.use(favicon("maindir/fb.ico"));
   app.use(helmet());
   // Add static files
   app.use(express.static("public"));

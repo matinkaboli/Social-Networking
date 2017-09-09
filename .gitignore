@@ -6,3 +6,6 @@ userpost/
 package.json
 package-lock.json
 build/
+.gitignore
+.jshintrc
+gulpfile.js

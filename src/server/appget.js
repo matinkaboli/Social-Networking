@@ -1,5 +1,6 @@
 // Matin modules
 const moment = require("moment");
+const svgCaptcha = require("svg-captcha");
 // Import Files
 const showData = require("./showdata");
 
@@ -19,7 +20,11 @@ const gets = (app, db) => {
     if (req.session && req.session.user) {
       res.redirect("/you");
     } else {
-      res.render("index.njk");
+      const captcha = svgCaptcha.create({ size: 6, noise: 2 });
+      req.session.captcha = captcha.text;
+      res.render("index.njk", {
+        captcha: captcha.data
+      });
     }
   });
   // Login page, using session.
@@ -212,7 +217,7 @@ const gets = (app, db) => {
                     if (!finder) {
                       res.render("userin.njk", {
                         data: result[0],
-                        created: new Date(result[0].created),
+                        created: moment(result[0].created).fromNow(),
                         self: req.session.user,
                         isFollowed: false,
                         list,
@@ -222,7 +227,7 @@ const gets = (app, db) => {
                     } else {
                       res.render("userin.njk", {
                         data: result[0],
-                        created: new Date(result[0].created),
+                        created: moment(result[0].created).fromNow(),
                         self: req.session.user,
                         isFollowed: true,
                         list,
@@ -240,7 +245,7 @@ const gets = (app, db) => {
               });
           } else {
             res.render("userout.njk", {
-              created: new Date(result[0].created),
+              created: moment(result[0].created).fromNow(),
               data: result[0]
             });
           }

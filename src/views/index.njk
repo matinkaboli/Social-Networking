@@ -18,6 +18,8 @@
           <input type="email" name="email" placeholder="Email: " maxlength="100" required>
           <input type="password" name="password" placeholder="Password: " maxlength="60" required>
           <input type="password" name="repassword" placeholder="Re-password: " maxlength="60" required>
+          {{ captcha | safe }}
+          <input type="text" name="captcha" placeholder="Captcha: ">
           <input type="submit" value="Register" id="reg">
           <p class="message">Already registered? <a href="#">Sign In</a></p>
         </form>
