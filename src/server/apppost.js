@@ -14,6 +14,7 @@ const { removeUserData }   = require("./removeuserdata");
 const { removeOldImage }   = require("./removeuserdata");
 const { removeFollowings } = require("./removefollow");
 const { removeFollowers }  =  require("./removefollow");
+const { removePost } = require("./removeuserdata");
 
 function validateEmail(email) {
   const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -257,10 +258,10 @@ const posts = (app, session, db) => {
     db.User.update(condition, update, (err, numAffected) => {
       // bring user to Admin page after updating setting
       if (numAffected.nModified == 1) {
-        res.redirect("you");
+        res.redirect("u");
       } else {
         console.error("Did not save.");
-        res.redirect("you");
+        res.redirect("u");
       }
     });
   });
@@ -381,6 +382,8 @@ const posts = (app, session, db) => {
     // Find user
     const condition = { username: req.session.user.toLowerCase() };
     db.User.find(condition, (err, result) => {
+      // Remove All of user posts
+      removePost(result[0]._id, db);
       // Find his avatar (it he has one)
       if (result[0].description.avatar) {
         const address =

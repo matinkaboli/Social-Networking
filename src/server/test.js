@@ -2,7 +2,7 @@ const fs = require("fs");
 const shit = require("./db");
 const Sharp = require("sharp");
 
-shit.Post.find({  }, (err, aff) => {
+shit.User.find({  }, (err, aff) => {
   if (err) throw err;
   console.log(aff);
 });

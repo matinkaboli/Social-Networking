@@ -10,9 +10,10 @@ const gets = (app, db) => {
     if (req.session && req.session.user) {
       return next();
     } else {
-      res.render("index.njk", {
+      res.render("/");
+      /*res.render("index.njk", {
         status: 0
-      });
+      });*/
     }
   };
   // Main page
@@ -51,9 +52,6 @@ const gets = (app, db) => {
       });
   });
   app.get("/you", auth, (req, res) => {
-    if (req.query.q) {
-      res.send(req.query.q);
-    } else {
       // Find the user
       const condition = {
         username: req.session.user
@@ -64,7 +62,60 @@ const gets = (app, db) => {
           data: answer[0]
         });
       });
-    }
+  });
+  app.get("/q", (req, res) => {
+    const q = req.query.q;
+    const tab = parseInt(req.query.tab);
+    const find = db.Post
+      .find({ title: { $regex: `.*${q}.*`, $options: 'i' } })
+      .skip(tab)
+      .limit(20)
+      .sort({ time: 1 });
+    find.then(doc => {
+      const list = [];
+      function* getInfo() {
+        for (const i of doc) {
+          yield new Promise(resolve => {
+            const dir = "maindir/userpost";
+            showData(`${dir}/${i.user}/${i._id}`)
+              .then(dataPost => {
+                db.User.find({ _id: i.user }, (err, userInfo) => {
+                  const obj = {
+                    title: i.title,
+                    time: moment(i.tile).fromNow(),
+                    content: dataPost,
+                    id: i._id,
+                    likes: i.likes.length,
+                    user: userInfo[0].username
+                  };
+                  if (userInfo[0].description.avatar) {
+                    obj.avatar = userInfo[0].description.avatar;
+                    obj.status = 0;
+                  } else {
+                    obj.avatar = "/default/man.jpg";
+                    obj.status = 1;
+                  }
+                  list.push(obj);
+                  resolve();
+                });
+              });
+          });
+        }
+      }
+      const iter = getInfo();
+      (function loop() {
+        const next = iter.next();
+
+        if (next.done) {
+          res.render("searchall.njk", {
+            list,
+            q
+          });
+          return;
+        }
+        next.value.then(loop);
+      }());
+    });
   });
   app.get("/u/:username", (req, res) => {
     if (req.query.tab) {

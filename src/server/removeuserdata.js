@@ -25,6 +25,13 @@ const removeOldImage = address => {
     if (err) throw err;
   });
 };
-
-module.exports.removeOldImage = removeOldImage;
-module.exports.removeUserData = removeUserData;
+const removePost = (id, db) => {
+  db.Post.find({ user: id }).remove(err => {
+    if (err) throw err;
+  });
+};
+module.exports = {
+  removePost,
+  removeOldImage,
+  removeUserData
+}
