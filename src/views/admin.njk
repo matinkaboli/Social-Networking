@@ -37,6 +37,13 @@
         </div>
       </div>
     </article>
+    {% if flash %}
+    {% for item in flash %}
+      <script>
+        alert("Hello");
+      </script>
+    {% endfor %}
+    {% endif %}
     <script>
       const username = "{{ data.username }}";
     </script>

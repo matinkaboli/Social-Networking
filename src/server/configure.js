@@ -4,7 +4,7 @@ const nunjucks = require("nunjucks");
 const bodyParser = require("body-parser");
 const favicon = require("serve-favicon");
 const compression = require('compression');
-const responseTime = require('response-time');
+const flash = require("connect-flash");
 
 const configs = (app, express, session) => {
   app.use(compression());
@@ -37,7 +37,7 @@ const configs = (app, express, session) => {
     })
   };
   app.use(session(configSession));
-  app.use(responseTime());
+  app.use(flash());
 };
 
 module.exports = configs;

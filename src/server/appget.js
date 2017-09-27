@@ -3,6 +3,7 @@ const moment = require("moment");
 const svgCaptcha = require("svg-captcha");
 // Import Files
 const showData = require("./showdata");
+const gen = require("./gen");
 
 const gets = (app, db) => {
   // Auth users with session
@@ -10,10 +11,8 @@ const gets = (app, db) => {
     if (req.session && req.session.user) {
       return next();
     } else {
-      res.render("/");
-      /*res.render("index.njk", {
-        status: 0
-      });*/
+      req.flash("status", "status0");
+      res.redirect("/");
     }
   };
   // Main page
@@ -24,7 +23,8 @@ const gets = (app, db) => {
       const captcha = svgCaptcha.create({ size: 6, noise: 2 });
       req.session.captcha = captcha.text;
       res.render("index.njk", {
-        captcha: captcha.data
+        captcha: captcha.data,
+        flash: req.flash("status")
       });
     }
   });
@@ -59,7 +59,8 @@ const gets = (app, db) => {
       db.User.find(condition, (err, answer) => {
         const postAddress = "maindir/userpost/";
         res.render("admin.njk", {
-          data: answer[0]
+          data: answer[0],
+          flash: req.flash("status")
         });
       });
   });
@@ -73,36 +74,7 @@ const gets = (app, db) => {
       .sort({ time: 1 });
     find.then(doc => {
       const list = [];
-      function* getInfo() {
-        for (const i of doc) {
-          yield new Promise(resolve => {
-            const dir = "maindir/userpost";
-            showData(`${dir}/${i.user}/${i._id}`)
-              .then(dataPost => {
-                db.User.find({ _id: i.user }, (err, userInfo) => {
-                  const obj = {
-                    title: i.title,
-                    time: moment(i.tile).fromNow(),
-                    content: dataPost,
-                    id: i._id,
-                    likes: i.likes.length,
-                    user: userInfo[0].username
-                  };
-                  if (userInfo[0].description.avatar) {
-                    obj.avatar = userInfo[0].description.avatar;
-                    obj.status = 0;
-                  } else {
-                    obj.avatar = "/default/man.jpg";
-                    obj.status = 1;
-                  }
-                  list.push(obj);
-                  resolve();
-                });
-              });
-          });
-        }
-      }
-      const iter = getInfo();
+      const iter = gen.getInfoSearch(doc, db, list);
       (function loop() {
         const next = iter.next();
 
@@ -228,73 +200,43 @@ const gets = (app, db) => {
                 const pro = query.exec();
 
                 pro.then(firstPosts => {
-                function* getData() {
-                  for (const post of firstPosts) {
-                    yield new Promise(resolve => {
-                      const dir =
-                      "maindir/userpost/";
-                      showData(`${dir}${result[0]._id}/${post._id}`)
-                        .then(data => {
-                          const findA = el => el === userSesID;
-                          const isLiked = post.likes.some(findA);
-                          const obj = {
-                            time: moment(post.time).fromNow(),
-                            title: post.title,
-                            content: data,
-                            _id: post._id,
-                            likes: post.likes,
-                            //comments: post.comments,
-                          };
-                          if (isLiked) {
-                            obj.like = true;
-                          } else {
-                            obj.like = false;
-                          }
-                          list.push(obj);
-                          resolve();
-                        })
-                        .catch(e => {
-                          console.error(e);
-                        });
-                      });
-                    }
-                }
-                let iter = getData();
-                (function loop() {
-                  const next = iter.next();
+                  const iter = gen.getInfo(firstPosts, userSesID, list);
+                  (function loop() {
 
-                  if (next.done) {
-                    db.Post.find({
-                      user: result[0]._id
-                    }, (err, allPosts) => {
-                      // If you didn't
-                      if (!finder) {
-                        res.render("userin.njk", {
-                          data: result[0],
-                          created: moment(result[0].created).fromNow(),
-                          self: req.session.user,
-                          isFollowed: false,
-                          list,
-                          url: username,
-                          lenPost: allPosts.length
-                        });
-                      // If you did
-                      } else {
-                        res.render("userin.njk", {
-                          data: result[0],
-                          created: moment(result[0].created).fromNow(),
-                          self: req.session.user,
-                          isFollowed: true,
-                          list,
-                          url: username,
-                          lenPost: allPosts.length
-                        });
-                      }
-                    });
-                    return;
-                  }
-                  next.value.then(loop);
-                }());
+                    const next = iter.next();
+
+                    if (next.done) {
+                      db.Post.find({
+                        user: result[0]._id
+                      }, (err, allPosts) => {
+                        // If you didn't
+                        if (!finder) {
+                          res.render("userin.njk", {
+                            data: result[0],
+                            created: moment(result[0].created).fromNow(),
+                            self: req.session.user,
+                            isFollowed: false,
+                            list,
+                            url: username,
+                            lenPost: allPosts.length
+                          });
+                        // If you did
+                        } else {
+                          res.render("userin.njk", {
+                            data: result[0],
+                            created: moment(result[0].created).fromNow(),
+                            self: req.session.user,
+                            isFollowed: true,
+                            list,
+                            url: username,
+                            lenPost: allPosts.length
+                          });
+                        }
+                      });
+                      return;
+                    }
+                    next.value.then(loop);
+                  }());
                 });
               })
               .catch(e => {

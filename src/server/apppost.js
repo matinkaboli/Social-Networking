@@ -10,6 +10,7 @@ const removeFile = require("./fs");
 const msg        = require("./msg");
 const savePost   = require("./posts");
 const showData   = require("./showdata");
+const gen        = require("./gen");
 const { removeUserData }   = require("./removeuserdata");
 const { removeOldImage }   = require("./removeuserdata");
 const { removeFollowings } = require("./removefollow");
@@ -17,7 +18,8 @@ const { removeFollowers }  =  require("./removefollow");
 const { removePost } = require("./removeuserdata");
 
 function validateEmail(email) {
-  const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  const re =
+  /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(email);
 }
 function validateUsername(username) {
@@ -25,7 +27,8 @@ function validateUsername(username) {
   return re.test(username);
 }
 function validatePassword(password) {
-  const re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;
+  const re =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;
   return re.test(password);
 }
 
@@ -47,10 +50,8 @@ const posts = (app, session, db) => {
     const password = req.body.password;
     const name = req.body.name;
     if (!username || !email || !password || !name) {
+      req.flash("status", "status7");
       res.redirect("/");
-      /*res.render("index.njk", {
-        status: 7
-      });*/
     } else {
       if (req.body.captcha === req.session.captcha) {
         if (
@@ -92,12 +93,8 @@ const posts = (app, session, db) => {
               mail(email, uniqueLink, 0);
             })
             .catch(e => {
+              req.flash("status", "status1");
               res.redirect("/");
-              /*res.render("index.njk", {
-                username,
-                email,
-                status: 1
-              });*/
           });
         } else {
           res.redirect("/");
@@ -146,10 +143,8 @@ const posts = (app, session, db) => {
         res.redirect("/you");
       })
       .catch(e => {
+        req.flash("status", "status3");
         res.redirect("/");
-        /*res.render("index.njk", {
-          status: 3
-        });*/
       });
   });
   app.post("/setting", multerConfig.single("avatar"), (req, res) => {
@@ -258,10 +253,11 @@ const posts = (app, session, db) => {
     db.User.update(condition, update, (err, numAffected) => {
       // bring user to Admin page after updating setting
       if (numAffected.nModified == 1) {
-        res.redirect("u");
+        res.redirect("/you");
       } else {
+        req.flash("status", "status0");
         console.error("Did not save.");
-        res.redirect("u");
+        res.redirect("/you");
       }
     });
   });
@@ -400,11 +396,9 @@ const posts = (app, session, db) => {
       // Remove the user
       db.User.find(condition).remove((err, aff) => {
         if (err) throw err;
-        req.session.destroy();
+        req.flash("status", "status2");
         res.redirect("/");
-        /*res.render("index.njk", {
-          status: 2
-        });*/
+        req.session.destroy();
       });
     });
   });
@@ -492,21 +486,8 @@ const posts = (app, session, db) => {
       arr[i] = parseInt(arr[i]);
     }
     const list = [];
-    function* getData() {
-      for (const _id of arr) {
-        yield new Promise(resolve => {
-          db.User.find({ _id }).then(doc => {
-            const obj = {
-              avatar: doc[0].description.avatar,
-              username: doc[0].username
-            }
-            list.push(obj);
-            resolve();
-          });
-        });
-      }
-    }
-    const iter = getData();
+
+    const iter = gen.getData(arr, db, list);
 
     (function loop() {
       const next = iter.next();
@@ -522,19 +503,15 @@ const posts = (app, session, db) => {
     const username = req.body.username.toLowerCase();
     db.User.find({ username }, (err, result) => {
       if (JSON.stringify(result) == "[]") {
+        req.flash("status", "status3");
         res.redirect("/");
-        /*res.render("index.njk", {
-          status: 3
-        });*/
       } else {
         const unique = stringing.unique(40) + '0' + result[0].username;
         mail(result[0].email, unique, 1);
         result[0].forgot = unique;
         result[0].save((err, updated) => {
+          req.flash("status", "status4");
           res.redirect("/");
-          /*res.render("index.njk", {
-            status: 4
-          });*/
         });
       }
     });
@@ -554,35 +531,27 @@ const posts = (app, session, db) => {
         const username = enqSp[enqSp.length - 1];
         db.User.find({ username }, (err, result) => {
           if (JSON.stringify(result) == "[]") {
+            req.flash("status", "status7");
             res.redirect("/");
-            /*res.render("index.njk", {
-              status: 7
-            });*/
           } else {
             if (result[0].forgot === enq) {
               const p = enc.encrypt(pass);
               result[0].password = p;
               result[0].forgot = null;
               result[0].save((err, updated) => {
+                req.flash("status", "status8");
                 res.redirect("/");
-                /*res.render("index.njk", {
-                  status: 8
-                });*/
               });
             } else {
+              req.flash("status", "status7");
               res.redirect("/");
-              /*res.render("index.njk", {
-                status: 7
-              });*/
             }
           }
         });
       }
     } else {
+      req.flash("status", "status5");
       res.redirect("/");
-      /*res.render("index.njk", {
-        status: 5
-      });*/
     }
   });
   app.post("/dislike", (req, res) => {
@@ -689,36 +658,7 @@ const posts = (app, session, db) => {
               } else {
                 const idWatcher = docW[0]._id;
                 const list = [];
-                function* getOtherPost() {
-                  for (const post of docP) {
-                    yield new Promise(resolve => {
-                      const dir = "maindir/userpost";
-                      showData(`${dir}/${idUser}/${post._id}`)
-                        .then(dataPost => {
-                          const findA = e => e === idWatcher;
-                          const isLiked = post.likes.some(findA);
-                          const obj = {
-                            time: moment(post.time).fromNow(),
-                            title: post.title,
-                            content: dataPost,
-                            _id: post._id,
-                            likes: post.likes,
-                          };
-                          if (isLiked) {
-                            obj.like = true;
-                          } else {
-                            obj.like = false;
-                          }
-                          list.push(obj);
-                          resolve();
-                        })
-                        .catch(e => {
-                          console.error(e);
-                        });
-                    });
-                  }
-                }
-                const iter = getOtherPost();
+                const iter = gen.getInfo(docP, idWatcher, list);
                 (function loop() {
                   const next = iter.next();
 

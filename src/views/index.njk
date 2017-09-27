@@ -32,24 +32,10 @@
         </form>
       </div>
     </div>
-    {% if status == 0 %}
-      <script>status0();</script>
-    {% elif status == 1 %}
-    <script>status1();</script>
-    {% elif status == 2 %}
-    <script>status2();</script>
-    {% elif status == 3 %}
-    <script>status3();</script>
-    {% elif status == 4 %}
-    <script>status4();</script>
-    {% elif status == 5 %}
-    <script>status5();</script>
-    {% elif status == 6 %}
-    <script>status6();</script>
-    {% elif status == 7 %}
-    <script>status7();</script>
-    {% elif status == 8 %}
-    <script>status8();</script>
+    {% if flash %}
+    {% for item in flash %}
+    <script>{{ item }}();</script>
+    {% endfor %}
     {% endif %}
     <script>
       $('.message a').click(function(){
