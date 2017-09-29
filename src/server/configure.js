@@ -13,8 +13,8 @@ const configs = (app, express, session) => {
   // Add static files
   app.use(express.static("public"));
 
-  app.use(bodyParser.urlencoded({ extended: false }));
-  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({ extended: false, limit: 1000 }));
+  app.use(bodyParser.json({ limit: 1000 }));
   // Configure template engine
   nunjucks.configure("views", {
     autospace: true,

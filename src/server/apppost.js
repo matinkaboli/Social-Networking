@@ -61,7 +61,7 @@ const posts = (app, session, db) => {
         ) {
           req.session.captcha = null;
           const user = new db.User({
-            password: enc.encrypt(password),
+            password: enc.encrypt(password, username),
             // Set random link to emailurl
             emailurl: uniqueLink,
             showEmail: validShow,
@@ -136,7 +136,7 @@ const posts = (app, session, db) => {
     // Always make it lowercase ..
     const username = req.body.username.toLowerCase();
     // Check username and encryped password
-    db.ckeckUserAndPassword(username, enc.encrypt(req.body.password))
+    db.ckeckUserAndPassword(username, enc.encrypt(req.body.password, username))
       .then(answer => {
         // Save user to the sessino for 7 days
         req.session.user = username;
@@ -237,16 +237,17 @@ const posts = (app, session, db) => {
   });
   // Change password in Setting page
   app.post("/changepass", (req, res) => {
+    const username = req.session.user.toLowerCase();
     // Find it to the DB
     const condition = {
-      password: enc.encrypt(req.body.oldpassword),
-      username: req.session.user.toLowerCase()
+      password: enc.encrypt(req.body.oldpassword, username),
+      username
     };
     // Change it
     const update = {};
     if (req.body.newpassword === req.body.repassword) {
       if (validatePassword(req.body.newpassword)) {
-        update.password = enc.encrypt(req.body.newpassword);
+        update.password = enc.encrypt(req.body.newpassword, username);
       }
     }
     // Set in DB
@@ -521,7 +522,7 @@ const posts = (app, session, db) => {
     const repass = req.body.repass;
     if (pass === repass) {
       if (pass.length < 9) {
-        res.render("/");
+        res.redirect("/");
         /*res.render("index.njk", {
           status: 6
         });*/
@@ -535,7 +536,7 @@ const posts = (app, session, db) => {
             res.redirect("/");
           } else {
             if (result[0].forgot === enq) {
-              const p = enc.encrypt(pass);
+              const p = enc.encrypt(pass, username);
               result[0].password = p;
               result[0].forgot = null;
               result[0].save((err, updated) => {
