@@ -8,12 +8,14 @@ const connection = mongoose.connect("mongodb://localpath/test", {
   useMongoClient: true
 });
 
-let db = mongoose.connection;
 let Schema = mongoose.Schema;
 
 autoInc.initialize(connection);
 // If error happened
-db.on("error", console.error.bind(console, "Connection failed."));
+mongoose.connection.on(
+  "error",
+  console.error.bind(console, "Connection failed.")
+);
 // Create schema for comments for posts
 const commentSchema = new Schema({
   user: Number,
@@ -62,7 +64,9 @@ const userSchema = new Schema({
   follower: [Number],
   following: [Number],
   admin: { type: Boolean },
-  forgot: String
+  forgot: String,
+  times: Number,
+  mistakes: Number
 }, { versionKey: false });
 
 userSchema.plugin(autoInc.plugin, "User");

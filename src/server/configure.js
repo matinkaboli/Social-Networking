@@ -1,27 +1,21 @@
-const helmet = require("helmet");
-const connectMongo = require("connect-mongo");
-const nunjucks = require("nunjucks");
 const bodyParser = require("body-parser");
-const favicon = require("serve-favicon");
-const compression = require('compression');
-const flash = require("connect-flash");
 
 const configs = (app, express, session) => {
-  app.use(compression());
-  app.use(favicon("maindir/fb.ico"));
-  app.use(helmet());
+  app.use(require('compression')());
+  app.use(require("serve-favicon")("maindir/fb.ico"));
+  app.use(require("helmet")());
   // Add static files
   app.use(express.static("public"));
 
-  app.use(bodyParser.urlencoded({ extended: false, limit: 1000 }));
-  app.use(bodyParser.json({ limit: 1000 }));
+  app.use(bodyParser.urlencoded({ extended: false, limit: 500 }));
+  app.use(bodyParser.json({ limit: 500 }));
   // Configure template engine
-  nunjucks.configure("views", {
+  require("nunjucks").configure("views", {
     autospace: true,
     express: app
   });
   // Configure session
-  const MongoStore = connectMongo(session);
+  const MongoStore = require("connect-mongo")(session);
   const configSession = {
     secret: "m@tinnim@125session",
     cookie: {
@@ -37,7 +31,7 @@ const configs = (app, express, session) => {
     })
   };
   app.use(session(configSession));
-  app.use(flash());
+  app.use(require("connect-flash")());
 };
 
 module.exports = configs;

@@ -28,15 +28,6 @@ const gets = (app, db) => {
       });
     }
   });
-  // Login page, using session.
-  app.get("/login", auth, (req, res) => {
-    res.render("admin.njk");
-  });
-  // Register page, same as main page
-  app.get("/register", (req, res) => {
-    // Check session
-    res.redirect("/");
-  });
   // Setting page for complete account options
   app.get("/setting", auth, (req, res) => {
     // Check db width username in the session.

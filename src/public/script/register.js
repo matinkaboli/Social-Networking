@@ -143,3 +143,23 @@ and at least 8 number.`);
   }
   return true;
 }
+
+fetch("https://freegeoip.net/json/")
+  .then(res => res.json())
+  .then(data => {
+    fetch("/checkip", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json"
+      },
+      body: JSON.stringify({
+        ip: data.ip,
+        country: data.country_name
+      })
+    })
+      .then(res => res.json())
+      .then(serverData => {
+        console.log(serverData);
+      });
+  });

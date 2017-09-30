@@ -69,6 +69,8 @@ const posts = (app, session, db) => {
             email,
             name,
             likes: 0,
+            times: 0,
+            mistakes: 0,
             created: Date.now()
           });
           // Check if username or email taken by someone else
@@ -138,13 +140,34 @@ const posts = (app, session, db) => {
     // Check username and encryped password
     db.ckeckUserAndPassword(username, enc.encrypt(req.body.password, username))
       .then(answer => {
-        // Save user to the sessino for 7 days
-        req.session.user = username;
-        res.redirect("/you");
+        answer[0].times = 0;
+        answer[0].mistakes = 0;
+        answer[0].save(err => {
+          if (err) throw err;
+          // Save user to the sessino for 7 days
+          req.session.user = username;
+          res.redirect("/you");
+        });
       })
       .catch(e => {
-        req.flash("status", "status3");
-        res.redirect("/");
+        db.User.find({ username }, (err, data) => {
+          if (JSON.stringify(data) !== "[]") {
+            console.log(1);
+            console.log(data);
+            if ((data[0].times + 1) % 15 === 0) {
+              data[0].mistakes = data[0].mistakes + 1;
+            }
+            data[0].times = data[0].times + 1;
+            data[0].save(wrong => {
+              if (wrong) throw wrong;
+              req.flash("status", "status3");
+              res.redirect("/");
+            });
+          } else {
+            req.flash("status", "status3");
+            res.redirect("/");
+          }
+        });
       });
   });
   app.post("/setting", multerConfig.single("avatar"), (req, res) => {
@@ -692,6 +715,9 @@ const posts = (app, session, db) => {
         });
       }
     });
+  });
+  app.post("/checkip", (req, res) => {
+    res.json(req.body);
   });
 };
 
