@@ -1,11 +1,2 @@
 node_modules/
-server/test.js
-public/profile
-messages/
-userpost/
-package.json
-package-lock.json
-build/
-.gitignore
 .jshintrc
-gulpfile.js

@@ -24,6 +24,7 @@ gulp.task("miniC", function() {
 gulp.task("miniH", function() {
   return gulp.src("./src/views/*.njk")
     .pipe(replace(/rootpath/g, config.website))
+    .pipe(replace(/PROJECTNAME/g, config.projectname))
     .pipe(htmlmin({ collapseWhitespace: true }))
     .pipe(gulp.dest("./build/views"));
 });
