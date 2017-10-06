@@ -143,7 +143,6 @@ and at least 8 number.`);
   }
   return true;
 }
-
 fetch("https://freegeoip.net/json/")
   .then(res => res.json())
   .then(data => {

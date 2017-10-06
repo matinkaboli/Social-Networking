@@ -6,7 +6,6 @@ const configs = (app, express, session) => {
   app.use(require("helmet")());
   // Add static files
   app.use(express.static("public"));
-
   app.use(bodyParser.urlencoded({ extended: false, limit: 500 }));
   app.use(bodyParser.json({ limit: 500 }));
   // Configure template engine

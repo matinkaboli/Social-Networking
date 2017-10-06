@@ -1,7 +1,7 @@
-const nodemailer = require("nodemailer");
+const { createTransport } = require("nodemailer");
 
-const sendEm = (to, text, flag) => {
-  const transport = nodemailer.createTransport({
+const sendEm = (to, text, flag, username = 0) => {
+  const transport = createTransport({
     service: "gmail",
     auth: {
       user: "matinkaboli79@gmail.com",
@@ -24,12 +24,13 @@ const sendEm = (to, text, flag) => {
     HTML += `<p>Go to this link to change your password
     <a href="rootpath/forgotchange/${text}">HERE</a></p>`;
   } else if (flag === 2) {
-    HTML += `<p>Someone is trying to log in to your account with
-    this IP address = ${IP}</p>
+    HTML += `<p>Hello ${username}, someone is trying to
+    log in to your account with
+    this IP address = ${text}</p>
     <p>If it is you, then click on the blue button,
     otherwise click on the red button</p><p></p>
-    <button style="background-color: red"><a href="${RED}"></a></button>
-    <button style="background-color: blue"><a href="${BLUE}"></a></button>
+    <button style="background-color: red"><a href="/"></a></button>
+    <button style="background-color: blue"><a href="/"></a></button>
     `;
   }
   HTML += `</body></html>`;

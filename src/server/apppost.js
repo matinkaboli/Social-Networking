@@ -137,38 +137,60 @@ const posts = (app, session, db) => {
   app.post("/login", (req, res) => {
     // Always make it lowercase ..
     const username = req.body.username.toLowerCase();
-    // Check username and encryped password
-    db.ckeckUserAndPassword(username, enc.encrypt(req.body.password, username))
-      .then(answer => {
-        answer[0].times = 0;
-        answer[0].mistakes = 0;
-        answer[0].save(err => {
-          if (err) throw err;
-          // Save user to the sessino for 7 days
-          req.session.user = username;
-          res.redirect("/you");
-        });
-      })
-      .catch(e => {
-        db.User.find({ username }, (err, data) => {
-          if (JSON.stringify(data) !== "[]") {
-            console.log(1);
-            console.log(data);
-            if ((data[0].times + 1) % 15 === 0) {
-              data[0].mistakes = data[0].mistakes + 1;
-            }
-            data[0].times = data[0].times + 1;
-            data[0].save(wrong => {
-              if (wrong) throw wrong;
-              req.flash("status", "status3");
-              res.redirect("/");
-            });
+
+    db.User.find({ username }, (err, userData) => {
+      if (err) throw err;
+      if (JSON.stringify(userData) !== "[]") {
+        db.Ban.find({ user: userData[0]._id }, (err, banData) => {
+          if (JSON.stringify(banData) === "[]") {
+            // Check username and encryped password
+            db.ckeckUserAndPassword(username, enc.encrypt(req.body.password, username))
+              .then(answer => {
+                answer[0].times = 0;
+                answer[0].mistakes = 0;
+                answer[0].save(err => {
+                  if (err) throw err;
+                  // Save user to the sessino for 7 days
+                  req.session.user = username;
+                  res.redirect("/you");
+                });
+              })
+              .catch(e => {
+                if ((userData[0].times + 1) % 15 === 0) {
+                  const banUser = new db.Ban({
+                    user: userData[0]._id
+                  });
+                  banUser.save()
+                    .then(() => {
+                      mail(
+                        userData[0].email,
+                        "XXX.XXX.XXX.XXX",
+                        2,
+                        userData[0].username
+                      );
+                    })
+                    .catch(e => {
+                      console.error(e);
+                    })
+                  userData[0].times = 0;
+                }
+                userData[0].times = userData[0].times + 1;
+                userData[0].save(wrong => {
+                  if (wrong) throw wrong;
+                  req.flash("status", "status10");
+                  res.redirect("/");
+                });
+              });
           } else {
-            req.flash("status", "status3");
+            req.flash("status", "status9");
             res.redirect("/");
           }
         });
-      });
+      } else {
+        req.flash("status", "status3");
+        res.redirect("/");
+      }
+    });
   });
   app.post("/setting", multerConfig.single("avatar"), (req, res) => {
     // Find it in DB

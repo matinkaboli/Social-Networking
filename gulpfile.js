@@ -29,18 +29,15 @@ gulp.task("miniH", function() {
 });
 gulp.task("miniJ1", function() {
   return gulp.src("./src/public/script/*.js")
-    /*.pipe(babel({
+    .pipe(babel({
       presets: ['env']
     }))
-    .pipe(uglify())*/
+    .pipe(uglify())
     .pipe(gulp.dest("./build/public/script"));
 });
 gulp.task("miniJ2", ["miniJ1"], function() {
   return gulp.src("./src/server/*.js")
-    /*.pipe(babel({
-      presets: ['env']
-    }))
-    .pipe(uglify())*/
+    .pipe(uglify())
     .pipe(gulp.dest("./build/server"));
 });
 gulp.task("rep2", ["miniJ2"], function() {

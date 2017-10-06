@@ -33,9 +33,7 @@
       </div>
     </div>
     {% if flash %}
-    {% for item in flash %}
-    <script>{{ item }}();</script>
-    {% endfor %}
+    <script>{{ flash }}();</script>
     {% endif %}
     <script>
       $('.message a').click(function(){

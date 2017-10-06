@@ -1,13 +1,13 @@
 // Main module
 const mongoose = require("mongoose");
-mongoose.Promise = Promise;
 const autoInc = require("mongoose-auto-increment");
-
+const ttl = require("mongoose-ttl");
 // Connect to mongodb
 const connection = mongoose.connect("mongodb://localpath/test", {
   useMongoClient: true
 });
 
+mongoose.Promise = Promise;
 let Schema = mongoose.Schema;
 
 autoInc.initialize(connection);
@@ -29,8 +29,11 @@ const postSchema = new Schema({
   time: Number,
   likes: [Number],
   comments: [commentSchema],
-  user: Number
+  user: Number,
 }, { _id: false, versionKey: false });
+const banSchema = new Schema({
+  user: Number
+});
 // What happened lately?
 /*const recent = new Schema({
   status: Number,
@@ -66,13 +69,15 @@ const userSchema = new Schema({
   admin: { type: Boolean },
   forgot: String,
   times: Number,
-  mistakes: Number
 }, { versionKey: false });
 
 userSchema.plugin(autoInc.plugin, "User");
+banSchema.plugin(ttl, { ttl: 1800000 });
 
 const User = mongoose.model("User", userSchema);
 const Post = mongoose.model("Post", postSchema);
+const Ban = mongoose.model("Ban", banSchema);
+
 // Check username and email in DB (using promise)
 const checkUserAndEmail = (username, email) => {
   return new Promise((resolve, reject) => {
@@ -144,6 +149,7 @@ const checkBy = (key, value) => {
 module.exports = {
   User,
   Post,
+  Ban,
   checkUserAndEmail,
   ckeckUserAndPassword,
   checkToken,
