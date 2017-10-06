@@ -1,0 +1,1 @@
+const fs=require("fs"),removeFile=e=>{fs.unlink(e,e=>{if(e)throw e})};module.exports=(e=>{fs.unlink(e,e=>{if(e)throw e})});

@@ -1,0 +1,1 @@
+const fs=require("fs"),showData=e=>new Promise((s,r)=>{fs.readFile(e,"utf8",(e,f)=>{e?r(e):s(f)})});module.exports=(e=>new Promise((s,r)=>{fs.readFile(e,"utf8",(e,f)=>{e?r(e):s(f)})}));

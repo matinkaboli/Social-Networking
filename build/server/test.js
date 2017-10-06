@@ -1,0 +1,1 @@
+const shit=require("./db"),crypto=require("crypto");shit.Ban.find({},(o,r)=>{if(o)throw o;console.log(r)});
